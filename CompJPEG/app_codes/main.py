@@ -10,7 +10,7 @@ import cv2
 
 np.set_printoptions(suppress=True)
 
-rat = 5
+rat = 25
 
 filename = 'nature2.jpg'
 encode = Encoder(filename, rat)
@@ -28,7 +28,7 @@ paddedHeight = encode.paddedHeight
 paddedWidth = encode.paddedWidth
 
 
-rev = Reverse(encode.data, paddedHeight, paddedWidth, height, width, rat)
+rev = Reverse(encode.data.astype(np.int32), paddedHeight, paddedWidth, height, width, rat)
 # # print(rev.array[:, :, 0])
 array = rev.array
 array1 = rev.de_quantization()
