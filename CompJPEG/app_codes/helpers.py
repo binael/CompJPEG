@@ -10,7 +10,7 @@ q_list: list
     The quantization matrix for quality of 50 in python list
 Quantization50 : list
     The quantization matrix for quality of 50 in numpy array
-dct_matrix: list of list
+cosine_matrix: list of list
     The discreet cosine transform matrix that will be used in
     multiplying the 8X8 block to yield the transformed image matrix
 dll : c_type
@@ -18,8 +18,8 @@ dll : c_type
 
 Formular
 --------
-    # T - dct_matrix. 8X8 matrix
-    # T' - transpose of the dct_matrix. 8X8 matrix
+    # T - cosine_matrix. 8X8 matrix
+    # T' - transpose of the cosine_matrix. 8X8 matrix
     # M - 8X8 section of the image data(matrix)
     # D - transformed 8X8 image matrix
     # * - matrix multiplication
@@ -29,7 +29,7 @@ Formular
 Note
 ----
 Matrix - An array of array | 2D array
-dct_matrix implementation is from the function get_dct_matrix
+cosine_matrix implementation is from the function get_cosine_matrix
 """
 
 from PIL import Image
@@ -52,7 +52,7 @@ q_list = [
     [72, 92, 95, 98, 112, 100, 103, 99]
 ]
 
-dct_matrix = [
+cosine_matrix = [
     [0.3536, 0.3536, 0.3536, 0.3536, 0.3536, 0.3536, 0.3536, 0.3536],
     [0.4904, 0.4157, 0.2778, 0.0975, -0.0975, -0.2778, -0.4157, -0.4904],
     [0.4619, 0.1913, -0.1913, -0.4619, -0.4619, -0.1913, 0.1913, 0.4619],
@@ -64,7 +64,7 @@ dct_matrix = [
 ]
 
 Quantization50 = np.array(q_list)
-dct_array = np.array(dct_matrix)
+cosine_array = np.array(cosine_matrix)
 
 try:
     dll = CDLL("./C_library/liball.so")
@@ -107,7 +107,7 @@ def get_dimension(image) -> tuple:
     return (int(dimension[0]), int(dimension[1]))
 
 
-def get_dct_matrix(n=8) -> list:
+def get_cosine_matrix(n=8) -> list:
     """
     Function that computes the 8X8 dct cosine values that will be
     used in converting image data to frequency domain
@@ -189,4 +189,37 @@ def pad_array(array, height, width, paddedHeight, paddedWidth):
 
     return (array)
 
-        
+
+def get_quantRatio(quality):
+    """
+    A function that computes the quantization array of array from the user
+    quality
+
+    parameters
+    ----------
+    quality : int
+        the compression quality
+
+    Return
+    ------
+    array : numpy 2D array
+        A 2D 8X8 numpy array of quantization ratio
+    """
+
+    if quality >= 50:
+        ratio = (100 - quality) / 50
+    else:
+        ratio = 50 / quality
+
+    user_quant = Quantization50 * ratio
+    user_quant = user_quant.astype(np.int64)
+
+    # # Using lamda to ensure values are below 256
+    # mat = list(map(lambda x: list(map(
+    #     lambda y: 255 if y > 255 else y, x)),user_quant))
+
+    # Ensure no value passes 255 or are below 256
+    mat = np.minimum(user_quant, 255)
+
+    mat = np.array(mat)
+    return (mat)

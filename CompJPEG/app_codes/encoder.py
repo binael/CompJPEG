@@ -42,7 +42,7 @@ STAGES IN ENCODING:
 
 from helpers import Image, np, ceil
 from helpers import picture_resolution, get_dimension, pad_array
-from helpers import dct_array, Quantization50
+from helpers import cosine_array, get_quantRatio
 
 
 class Encoder():
@@ -67,7 +67,7 @@ class Encoder():
             The file path of the image to compress
         data : numpy array (3D)
             A 3D numpy array of image data that will be encoded
-        quality : int
+        quantRatio : int
             The compression rate selected by the user
         height : int
             The height of the image
@@ -78,13 +78,18 @@ class Encoder():
         paddedWidth : int
             The width after padding the data
         """
-        self.__data = []
-        self.__quality = quality
+        self.__data = None
+        self.__quantRatio = get_quantRatio(quality)
         self.__image = image
         self.__height = 0
         self.__width = 0
         self.__paddedHeight = 0
         self.__paddedWidth = 0
+
+
+    @property
+    def quantRatio(self):
+        return self.__quantRatio
 
     @property
     def height(self):
@@ -101,6 +106,14 @@ class Encoder():
     @property
     def paddedWidth(self):
         return self.__paddedWidth
+
+    @property
+    def quantRatio(self):
+        return self.__quantRatio
+
+    @property
+    def data(self):
+        return self.__data
 
     def get_image_array(self):
         """
@@ -175,9 +188,9 @@ class Encoder():
         """
 
         # Update the image data
-        if not (self.__height and self.__width):
-            print('Executing padding')
-            self.padding()
+        # if not (self.__height and self.__width):
+        #     print('Executing padding')
+        #     self.padding()
 
         # if default_mode != 'RGB':
         #     return self.__data
@@ -185,10 +198,15 @@ class Encoder():
         # Get the YCrCb
         Y = self.__data[:, :, 0] * 0.299 + self.__data[:, :, 1] * 0.587 +\
             self.__data[:, :, 2] * 0.114
-        Cr = self.__data[:, :, 0] * -0.1687 + self.__data[:, :, 1] * -0.3317 +\
-            self.__data[:, :, 2] * 0.5 + 128
-        Cb = self.__data[:, :, 0] * 0.5 + self.__data[:, :, 1] * -0.4187 +\
+        Cr = self.__data[:, :, 0] * 0.5 + self.__data[:, :, 1] * -0.4187 +\
             self.__data[:, :, 2] * -0.0813 + 128
+        Cb = self.__data[:, :, 0] * -0.1687 + self.__data[:, :, 1] * -0.3317 +\
+            self.__data[:, :, 2] * 0.5 + 128
+
+        # # Reversible Color Transform
+        # Y = (self.__data[:, :, 0] + 2 * self.__data[:, :, 1] + self.__data[:, :, 2]) / 4
+        # Cr = self.__data[:, :, 0] - self.data[:, :, 1]
+        # Cb = self.__data[:, :, 2] - self.data[:, :, 1]
 
         # convert back to 3D numpy array
         self.__data = np.stack((Y, Cr, Cb), axis=-1)
@@ -217,12 +235,25 @@ class Encoder():
 
     def DCT(self):
         """
+        A function that tranforms the image array from spatial domain to frequency
+        domain
+
+        Formula
+        -------
+            # cosine_array - 8X8 cosine transfrom array (find in helpers.py)
+            # cosine_array.T - the transpose
+            # array - 8X8 section of the image
+            # result - 8X8 section of the image that is dct transformed
+            # * - matrix multiplication
+
+            $ result = cosine_array * array * cosine_array.T
         """
 
-        self.shift_level()
         D = 3
         row_section = self.__paddedHeight // self.bits
         col_section = self.__paddedWidth // self.bits
+
+        ar_copy = np.empty((self.__paddedHeight, self.__paddedWidth, D))
 
         for d in range(D):
             for row in range(row_section):
@@ -232,29 +263,32 @@ class Encoder():
                     c_start = col * self.bits
                     c_end = c_start + self.bits
 
-                    mat_8 = self.__data[:, :, d][r_start:r_end, c_start:c_end]
-                    ar = np.dot(np.dot(dct_array, mat_8), dct_array.T)
+                    mat_8 = self.__data[r_start:r_end, c_start:c_end, d]
+                    ar = np.dot(np.dot(cosine_array, mat_8), (cosine_array.T))
+                    ar_copy[r_start:r_end, c_start:c_end, d] = ar[:, :]
 
-                    self.__data[:, :, d][r_start:r_end, c_start:c_end] = ar
-                    # self.__data = self.__data.astype(np.int64)
-                    self.__data = np.round(self.__data, decimals=1)
-
-        return (self.__data)
+        self.__data = ar_copy
+        return (ar_copy.astype(np.int64))
 
 
-    def quantization(self, quality=50):
+    def quantization(self):
         """
-        """
+        A function that computes the quantization ration based on the user
+        input quantRatio
 
-        ratio = (100 - quality) / 50
-        user_quant = Quantization50 * ratio
-        user_quant = user_quant.astype(np.int64)
+        Return
+        ------
+        array: numpy 3D array
+            the quantized numpy array
+        """
 
         D = 3
         row_section = self.__paddedHeight // self.bits
         col_section = self.__paddedWidth // self.bits
 
-        for d in range(D):
+        ar_copy = np.empty((self.__paddedHeight, self.__paddedWidth, D))
+
+        for d in range(3):
             for row in range(row_section):
                 r_start = row * self.bits
                 r_end = r_start + self.bits
@@ -262,12 +296,11 @@ class Encoder():
                     c_start = col * self.bits
                     c_end = c_start + self.bits
 
-                    mat_8 = self.__data[:, :, d][r_start:r_end, c_start:c_end]
-                    ar = np.multipy(mat_8, user_quant)
+                    mat_8 = self.__data[r_start:r_end, c_start:c_end, d]
+                    ar = np.divide(mat_8, self.__quantRatio)
 
-                    self.__data[:, :, d][r_start:r_end, c_start:c_end] = ar
-                    # self.__data = self.__data.astype(np.int64)
-                    self.__data = np.round(self.__data, decimals=1)
-        
+                    ar_copy[r_start:r_end, c_start:c_end, d] = ar
+        self.__data = ar_copy
+        # self.__data = np.round(self.__data, decimals=0)
 
-        return (self.__data)
+        return (ar_copy.astype(np.int64))

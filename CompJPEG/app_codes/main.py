@@ -2,60 +2,78 @@
 from encoder import Encoder, get_dimension, picture_resolution
 from encoder import np, ceil
 from encoder import Image
+from reverse import Reverse
+from helpers import cosine_array, get_quantRatio
+import numpy as np
+from PIL import Image
+import cv2
 
 np.set_printoptions(suppress=True)
 
-filename = 'example_small.jpg'
-encode = Encoder(filename)
+rat = 5
+
+filename = 'nature2.jpg'
+encode = Encoder(filename, rat)
 data = encode.get_image_array()
+# print(data[:, :, 1])
 
-# im = Image.open(filename)
-# print(im.size)
-data2 = encode.padding()
+data1 = encode.padding()
 data3 = encode.BRG2YCrCb()
-# data4 = encode.shift_level()
+data4 = encode.shift_level()
 data5 = encode.DCT()
-q = encode.quantization(90)
-# height = encode.height
-# width = encode.width
-# paddedHeight = encode.paddedHeight
-# paddedWidth = encode.paddedWidth
+data6 = encode.quantization()
+height = encode.height
+width = encode.width
+paddedHeight = encode.paddedHeight
+paddedWidth = encode.paddedWidth
 
-print(q)
 
-# print(data[:,:,0])
-# print(data[:,:,1])
-# print(data[:,:,2])
+rev = Reverse(encode.data, paddedHeight, paddedWidth, height, width, rat)
+# # print(rev.array[:, :, 0])
+array = rev.array
+array1 = rev.de_quantization()
+data8 = rev.IDCT()
+rev.shift_level()
+rev.YCrCb2BRG()
+rev.reverse_padding()
 
-# print(padded[:,:,1])
-# print(padded[:,:,2])
+# print(rev.quantRatio)
 
-# print(f'data after opening image: {data.shape}')
-# print(f'data after padding {data2.shape}')
-# print('')
 
-# print(f'After padding for real dimension: {height} X {width}')
-# print(f'After padding for padded dimension: {paddedHeight} X {paddedWidth}')
+# Read the YCrCb image
+rgb_image = cv2.imread(filename)
+ycrcb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2YCrCb)
+Y, Cr, Cb = cv2.split(ycrcb_image)
+dct_Y = cv2.dct(np.float32(Y))
+dct_Cr = cv2.dct(np.float32(Cr))
+dct_Cb = cv2.dct(np.float32(Cb))
+idct_Y = cv2.idct(dct_Y)
+idct_Cr = cv2.idct(dct_Cr)
+idct_Cb = cv2.idct(dct_Cb)
+idct_Y_image = cv2.normalize(idct_Y, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+idct_Cr_image = cv2.normalize(idct_Cr, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+idct_Cb_image = cv2.normalize(idct_Cb, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+idct_ycrcb_image = cv2.merge((idct_Y_image, idct_Cr_image, idct_Cb_image))
 
-# print(data2[:,:,0])
+rgb = cv2.cvtColor(idct_ycrcb_image, cv2.COLOR_YCrCb2BGR)
 
-# print(data3[:,:,0])
-# print(data3[:,:,1])
-# print(data3[:,:,2])
+R, G, B = cv2.split(rgb_image)
+R = np.array(R)
 
-# print(data4[:,:,2])
 
-# print(data5[:,:,0])
-# print(data5[:,:,1])
-# print(data5[:,:,2])
+# img = Image.open(filename)
+# image = img.convert('YCbCr')
+# ar = np.array(image)
 
-# print(padded[:,:,1])
-# print(padded[:,:,2])
 
-# h, w = get_dimension(filename)
-# print(picture_resolution(filename))
+# print(np.array(img)[:, :, 0])
+# print()
+# print(rev.array[0:10, 0:10, 0].astype(np.int64))
+# print()
+# print(R)
 
-# print(f'height: {h}')
-# print(f'width: {w}')
-# print(f'Height: {ceil(h / 8) * 8}')
-# print(f'Width: {ceil(h / 8) * 8}')
+
+name = 'compressed.jpg'
+ar = rev.array
+image = Image.fromarray(ar.astype(np.uint8))
+image.save(name)
