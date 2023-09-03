@@ -1,0 +1,13 @@
+README.md
+setup.py
+ComJPEG.egg-info/PKG-INFO
+ComJPEG.egg-info/SOURCES.txt
+ComJPEG.egg-info/dependency_links.txt
+ComJPEG.egg-info/top_level.txt
+tests/__init__.py
+tests/test_quant.py
+util_func/__init__.py
+util_func/helpers.py
+util_func/padding.py
+util_func/quantization.py
+util_func/transform.py
