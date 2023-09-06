@@ -135,14 +135,8 @@ class Encoder():
         self.__paddedWidth = ceil(self.__width / section) * section
         self.__paddedHeight = ceil(self.__height / section) * section
 
-        # Ensure the array is padded or return the initial array
-        try:
-            new_array = pad_array(self.__array, self.__paddedWidth,
-                                     self.__paddedHeight)
-        except Exception as er:
-            print (f'Padding Failed: {str(er.exception)}')
-        else:
-            self.__array = new_array
+        new_array = pad_array(self.__array, self.__paddedWidth,
+                              self.__paddedHeight)
 
         return (self.__array)
 
