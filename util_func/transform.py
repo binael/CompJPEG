@@ -27,6 +27,7 @@ Matrix - An array of array | 2D array
 cosine_array implementation is from the function get_cosine_array
 """
 
+# Python modules required
 import numpy as np
 from math import cos, sqrt
 

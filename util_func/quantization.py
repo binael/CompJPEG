@@ -27,6 +27,7 @@ Note
 Matrix - An array of array | 2D array
 """
 
+# Python module required
 import numpy as np
 
 QUANTIZATION_CHROMA_50 = np.array((
