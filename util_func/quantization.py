@@ -150,7 +150,7 @@ def quantize(array, quality, channel):
     if quality < 1 or quality > 100:
         raise ValueError('Quality must be between 1 and 100')
     quant_ratio = get_quantRatio(quality, channel)
-    return (np.round(np.multiply(array, quant_ratio)))
+    return (np.round(np.divide(array, quant_ratio)))
 
 
 def de_quantize(array, quality, channel):
@@ -187,4 +187,4 @@ def de_quantize(array, quality, channel):
     if quality < 1 or quality > 100:
         raise ValueError('Quality must be between 1 and 100')
     quant_ratio = get_quantRatio(quality, channel)
-    return (np.round(np.divide(array, quant_ratio)))
+    return (np.round(np.multiply(array, quant_ratio)))

@@ -10,26 +10,20 @@ specify YCrCb encoded mode for the picture)
 
 STAGES IN ENCODING:
 -------------------
-    Getting the Image:
-        This is implemented using python pillow library and
-        converted to 3d array using numpy.
-        A library is important in order to account for various JPEG
-        formats and permutations/combinations of the JPEG markers
+    YCrCb Conversion:
+        This involves transforming the image array from RGB to
+        Y(luminance) and Cr, Cb (chrominance values). This method is
+        skipped if the image mode is already in YCrCb mode
+    Level Shifting and Sampling:
+        Image array are transformed from 8bit unsigned to 8bit signed
+        representation by subtraction "128" from each array value
+        mat[i][j] - 128
     Padding:
         Image array are usually processed in 8x8 MCUs (minimum coded units)
         and so, both the width and height (dimensions) of the images
         must be in multiples of 8. Any value can be chosen in extending your
         image rows and columns to match the multiples of 8
-    Sub Sampling:
-        This was not implemented in the project
-    YCrCb Conversion:
-        This involves transforming the image array from RGB to
-        Y(luminance) and Cr, Cb (chrominance values). This method is
-        skipped if the image mode is already in YCrCb mode
-    Level Shifting:
-        Image array are transformed from 8bit unsigned to 8bit signed
-        representation by subtraction "128" from each array value
-        mat[i][j] - 128
+        Note that DCT and Quantization need 8X8 arrays
     DCT Transform:
         DCT Transform is then applied to the image to transform to frequency
         domain
@@ -37,14 +31,16 @@ STAGES IN ENCODING:
         This is the stage that the actual compression takes place
         A quantization table with the specified compression ratio is
         applied to the image array to compress the array
-
 """
 
+# Python modules utilized in Encoder class
 import numpy as np
-from math import ceil, sqrt
+from math import ceil
+
+# Modules (functions) from util_func package
 from util_func import pad_array
-from util_func import cosine_array
-from util_func import get_quantRatio
+from util_func import quantize
+from util_func import FDCT
 
 
 class Encoder():
@@ -59,7 +55,7 @@ class Encoder():
 
     bits = 8
 
-    def __init__(self, array, quantRatio=50) -> None:
+    def __init__(self, array, quality=50) -> None:
         """
         Instance variables for the Encoder class
 
@@ -67,7 +63,7 @@ class Encoder():
         -----------
         array : ndarray
             A 3D numpy array of image array that will be encoded
-        quantRatio : int
+        quality : int
             The compression rate selected by the user
         width : int
             The width of the image
@@ -79,7 +75,7 @@ class Encoder():
             The height after padding the array
         """
         self.__array = array
-        self.__quantRatio = quantRatio
+        self.__quality = quality
 
         if (np.any(array) and isinstance(array, np.ndarray)
                 and array.ndim >= 2):
@@ -90,19 +86,6 @@ class Encoder():
 
         self.__paddedWidth = 0
         self.__paddedHeight = 0
-
-
-    @property
-    def quantRatio(self):
-        return self.__quantRatio
-
-    @quantRatio.setter
-    def quantRatio(self, value):
-        if not isinstance(value, int):
-            raise TypeError('quantRatio must be integer')
-        if value < 1 or value > 95:
-            raise ValueError('quantRatio must be between 1 and 95')
-        self.__quantRatio = value
 
     @property
     def array(self):
@@ -143,7 +126,7 @@ class Encoder():
             quantized
 
         Returns
-        ----------
+        -------
         ndarray
             A 3D or 2D numpy array of image that is padded
         """
@@ -201,18 +184,13 @@ class Encoder():
         Cb = self.__array[:, :, 0] * -0.1687 + self.__array[:, :, 1] * -0.3317 +\
             self.__array[:, :, 2] * 0.5 + 128
 
-        # # Reversible Color Transform
-        # Y = (self.__array[:, :, 0] + 2 * self.__array[:, :, 1] + self.__array[:, :, 2]) / 4
-        # Cr = self.__array[:, :, 0] - self.__array[:, :, 1]
-        # Cb = self.__array[:, :, 2] - self.__array[:, :, 1]
-
         # convert back to 3D numpy array and ensures values are within
         # the range of 0 and 255
         self.__array = np.clip(np.stack((Y, Cr, Cb), axis=-1), 0, 255)
 
         return (self.__array.astype(np.int64))
 
-    def shift_level(self, array=None):
+    def sampling(self, array=None):
         """
         Convert the array array from unsigned to a signed representation
 
@@ -239,47 +217,6 @@ class Encoder():
 
         self.__array = self.__array - 128
         return (self.__array.astype(np.int64))
-
-    def DCT(self):
-        """
-        A function that tranforms the image array from spatial domain to frequency
-        domain
-
-        Formula
-        -------
-            # cosine_array - 8X8 cosine transfrom array (find in helpers.py)
-            # cosine_array.T - the transpose
-            # array - 8X8 section of the image
-            # result - 8X8 section of the image that is dct transformed
-            # * - matrix multiplication
-
-            $ result = cosine_array * array * cosine_array.T
-        """
-
-        if (self.__paddedWidth == 0) or (self.__paddedHeight == 0):
-            self.__paddedWidth = ceil(self.__width / 8) * 8
-            self.__paddedHeight = ceil(self.__height / 8) * 8
-
-        D = self.__array.ndim
-        row_section = self.__paddedWidth // self.bits
-        col_section = self.__paddedHeight // self.bits
-
-        ar_copy = np.empty((self.__paddedWidth, self.__paddedHeight, D))
-
-        for d in range(D):
-            for row in range(row_section):
-                r_start = row * self.bits
-                r_end = r_start + self.bits
-                for col in range(col_section):
-                    c_start = col * self.bits
-                    c_end = c_start + self.bits
-
-                    mat_8 = self.__array[r_start:r_end, c_start:c_end, d]
-                    ar = np.dot(np.dot(cosine_array, mat_8), (cosine_array.T))
-                    ar_copy[r_start:r_end, c_start:c_end, d] = ar[:, :]
-
-        self.__array = ar_copy
-        return (ar_copy.astype(np.int64))
 
 
     def compression(self):
@@ -325,11 +262,11 @@ class Encoder():
                     # Get the 8X8 slice
                     mat_8 = self.__array[r_start:r_end, c_start:c_end, d]
                     # Transform using DCT (FDCT)
-                    ar = FDCT(mat_8)
+                    dct = FDCT(mat_8)
                     # Quantize
-                    ar = quantize(ar, self.__quality, mode)
+                    quant = quantize(dct, self.__quality, mode)
                     # Copy value into the new array
-                    ar_copy[r_start:r_end, c_start:c_end, d] = ar
+                    ar_copy[r_start:r_end, c_start:c_end, d] = quant
 
         self.__array = ar_copy
-        return (ar_copy.astype(np.int64))
+        return (ar_copy)
