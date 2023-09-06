@@ -285,7 +285,7 @@ class Encoder():
     def compression(self):
         """
         A function that compresses the image by applying dct transform
-        and the quantization
+        and then quantization
 
         Return
         ------
@@ -293,6 +293,7 @@ class Encoder():
             the quantized numpy array
         """
 
+        # Ensure padded dimensions are valid
         if (self.__paddedWidth == 0) or (self.__paddedHeight == 0):
             self.__paddedWidth = ceil(self.__width / 8) * 8
             self.__paddedHeight = ceil(self.__height / 8) * 8
@@ -304,32 +305,31 @@ class Encoder():
         row_section = self.__paddedWidth // self.bits
         col_section = self.__paddedHeight // self.bits
 
-        # Get chrominance and luminance quantization ratio
-        quant_luma, quant_chroma = get_quantRatio(self.__quantRatio)
-
         # Create a new array
         ar_copy = np.empty((self.__paddedWidth, self.__paddedHeight, D))
 
+        # Compress
         for d in range(D):
-            # Handle chrominance and luminance quantization
-            # Note luminance is the array[:, : 0]
-            if d > 0:
-                quant_ratio = quant_chroma
-            else:
-                quant_ratio = quant_luma
-
             for row in range(row_section):
                 r_start = row * self.bits
                 r_end = r_start + self.bits
+                if d == 0:
+                    mode = 'luma'
+                else:
+                    mode = 'chroma'
+
                 for col in range(col_section):
                     c_start = col * self.bits
                     c_end = c_start + self.bits
 
+                    # Get the 8X8 slice
                     mat_8 = self.__array[r_start:r_end, c_start:c_end, d]
-                    ar = np.round(np.divide(mat_8, quant_ratio))
-
+                    # Transform using DCT (FDCT)
+                    ar = FDCT(mat_8)
+                    # Quantize
+                    ar = quantize(ar, self.__quality, mode)
+                    # Copy value into the new array
                     ar_copy[r_start:r_end, c_start:c_end, d] = ar
-        self.__array = ar_copy
-        # self.__array = np.round(self.__array, decimals=0)
 
+        self.__array = ar_copy
         return (ar_copy.astype(np.int64))
