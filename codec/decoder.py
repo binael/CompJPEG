@@ -1,7 +1,18 @@
 #!/usr/bin/env python3
 
 """
-A module that decodes
+A module that decompresses an image array
+
+Stage in Decoding
+-----------------
+    Dequantization:
+        Dequantization of the YCrCb
+    Inverse DCT Transform:
+        Applying IDCT to the Dequantized array
+    Reverse Padding:
+        Bringing the array back to its original form
+    Reverse_Sampling (Up Sampling)
+    RGB Conversion
 """
 import numpy as np
 from util_func import IDCT

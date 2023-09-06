@@ -77,3 +77,47 @@ R = np.array(R)
 # ar = rev.array
 # image = Image.fromarray(ar.astype(np.uint8))
 # image.save(name)
+
+
+
+
+
+#!/usr/bin/env python3
+
+import numpy as np
+from PIL import Image
+from codec import Encoder
+from codec import Decoder
+from fileIO import get_image_array
+from fileIO import save_image
+
+filename = './jpeg_images/fruits.jpg'
+
+array_3d = get_image_array(filename)
+
+rat = 25
+
+encode = Encoder(array_3d, rat)
+# print(encode.array[:, :, 0].astype(np.int64))
+encode.RGB2YCrCb()
+encode.sampling()
+encode.padding()
+encode.compression()
+print(encode.array[:, :, 0].astype(np.int64))
+
+pW = encode.paddedWidth
+pH = encode.paddedHeight
+h = encode.height
+w = encode.width
+# print(encode.array[:, :, 0].astype(np.int64))
+decode = Decoder(encode.array, w, h, pW, pH, rat)
+# print(decode.array[:, :, 0])
+decode.decompression()
+decode.reverse_padding()
+decode.reverse_sampling()
+decode.YCrCb2BRG()
+
+
+name = './jpeg_images/compressed.jpg'
+
+save_image(decode.array, name)

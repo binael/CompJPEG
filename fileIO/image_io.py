@@ -10,7 +10,7 @@ and save to JPEG format
 import numpy as np
 from PIL import Image
 
-save_image(array, filename) -> None:
+def save_image(array, filename) -> None:
     """
     A function that saves a compressed image from array
 
@@ -22,15 +22,20 @@ save_image(array, filename) -> None:
         The filepath and name to save the image
     """
 
-    if not (any(array) and isinstance(array, np.ndarray)
-            and array.ndim == 3):
-        raise TypeError('Array format error')
+    if not np.any(array):
+        raise ValueError('Array must be a non empty array')
+
+    if not isinstance(array, np.ndarray):
+        raise TypeError('Array must be an ndarray')
+
+    if not (array.ndim == 3):
+        raise TypeError('Array must be a 3D array')
 
     image = Image.fromarray(array.astype(np.uint8))
     image.save(filename)
 
 
-get_image_array(filename) -> np.ndarray:
+def get_image_array(filename) -> np.ndarray:
     """
     A function that gets an image array from an image file
 

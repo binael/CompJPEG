@@ -3,20 +3,9 @@
 from util_func import pad_array
 import numpy as np
 import unittest
+from tests.variables import check_equality
+from tests.variables import array_3_2_3d
 
-
-def check_equality(q1, q2):
-    """
-    checks if q1 and 12 are equal
-
-    Parameter
-    ---------
-    q1:
-        quantization list 1
-    q2:
-        quantization list 2
-    """
-    return q1 == q2
 
 
 class TestPadArray(unittest.TestCase):
@@ -25,12 +14,7 @@ class TestPadArray(unittest.TestCase):
     """
 
     def setUp(self):
-        self.ar = np.array([[[1, 2, 3],
-                             [4, 5, 6],
-                             [7, 8, 9]],
-                            [[10, 11, 12],
-                             [13, 14, 15],
-                             [16, 17, 18]]])
+        self.ar = array_3_2_3d
         self.A = self.ar[:, :, 0]
         self.B = self.ar[:, :, 1]
         self.C = self.ar[:, :, 2]
