@@ -42,7 +42,7 @@ get_image_array(filename) -> np.ndarray:
     Returns
     -------
     ndarray:
-        3D ndarray image
+        3D ndarray of the image file
     """
 
     with Image.open(filename) as img:

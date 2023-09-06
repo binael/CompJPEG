@@ -47,10 +47,21 @@ class Encoder():
     """
     A class that takes a 3D numpy image array and compresses the array
 
-    parameters
-    -------
-    bits : int = 8
+    Parameters
+    ----------
+    bits : int, constant
         The number of bits in each row and in each col of the MCU
+
+    Methods
+    -------
+    RGB2YCrCb:
+        Method to convert from RGB color space to YCrCb space
+    padding:
+        Method to implement padding
+    sampling:
+        Method that shifts pixel level and implement sampling
+    compression
+        Method that performs dct and quantization on array
     """
 
     bits = 8

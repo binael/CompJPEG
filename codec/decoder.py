@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+"""
+A module that decodes
+"""
 import numpy as np
 from util_func import IDCT
 from util_func import de_quantize
