@@ -1,24 +1,25 @@
 #!/usr/bin/env python3
 
-from encoder import Encoder
-from helpers import Image, np, ceil
-from helpers import picture_resolution, get_dimension, pad_array
-from helpers import cosine_array, get_quantRatio
+import numpy as np
+from math import ceil, sqrt
+from util_func import pad_array
+from util_func import cosine_array
+from util_func import get_quantRatio
 
 
-class Reverse:
+class Decoder:
     """
     """
 
     bits = 8
 
-    def __init__(self, array, paddedHeight, paddedWidth, height, width, quantRatio=50):
+    def __init__(self, array, width, height, paddedWidth, paddedHeight, quantRatio=50):
         self.__array = array
-        self.__quantRatio = get_quantRatio(quantRatio)
-        self.__paddedHeight = paddedHeight
+        self.__quantRatio = quantRatio
         self.__paddedWidth = paddedWidth
-        self.__height = height
+        self.__paddedHeight = paddedHeight
         self.__width = width
+        self.__height = height
 
     @property
     def array(self):
@@ -31,13 +32,32 @@ class Reverse:
     def de_quantization(self):
         """
         """
-        D = 3
-        row_section = self.__paddedHeight // self.bits
-        col_section = self.__paddedWidth // self.bits
+        if (self.__paddedWidth == 0) or (self.__paddedHeight == 0):
+            self.__paddedWidth = ceil(self.__width / 8) * 8
+            self.__paddedHeight = ceil(self.__height / 8) * 8
 
-        ar_copy = np.empty((self.__paddedHeight, self.__paddedWidth, D))
+        # Get the nd array dimensions
+        D = self.__array.ndim
 
-        for d in range(3):
+        # Divide the width and height into 8X8 sections
+        row_section = self.__paddedWidth // self.bits
+        col_section = self.__paddedHeight // self.bits
+
+        # Get chrominance and luminance quantization ratio
+        quant_luma, quant_chroma = get_quantRatio(self.__quantRatio)
+        # print(f'{quant_luma}\n{quant_chroma}')
+
+        # Create a new array
+        ar_copy = np.empty((self.__paddedWidth, self.__paddedHeight, D))
+
+        for d in range(D):
+            # Handle chrominance and luminance quantization
+            # Note luminance is the array[:, : 0]
+            if d > 0:
+                quant_ratio = quant_chroma
+            else:
+                quant_ratio = quant_luma
+
             for row in range(row_section):
                 r_start = row * self.bits
                 r_end = r_start + self.bits
@@ -46,7 +66,7 @@ class Reverse:
                     c_end = c_start + self.bits
 
                     mat_8 = self.__array[r_start:r_end, c_start:c_end, d]
-                    ar = np.multiply(mat_8, self.__quantRatio)
+                    ar = np.multiply(mat_8, quant_ratio)
 
                     ar_copy[r_start:r_end, c_start:c_end, d] = ar
         self.__array = ar_copy
@@ -76,10 +96,10 @@ class Reverse:
         """
 
         D = 3
-        row_section = self.__paddedHeight // self.bits
-        col_section = self.__paddedWidth // self.bits
+        row_section = self.__paddedWidth // self.bits
+        col_section = self.__paddedHeight // self.bits
 
-        ar_copy = np.empty((self.__paddedHeight, self.__paddedWidth, D))
+        ar_copy = np.empty((self.__paddedWidth, self.__paddedHeight, D))
 
         for d in range(D):
             for row in range(row_section):
@@ -100,9 +120,9 @@ class Reverse:
     def reverse_padding(self):
         """
         """
-        Y = self.__array[0:self.__height, 0:self.__width, 0]
-        Cr = self.__array[0:self.__height, 0:self.__width, 1]
-        Cb = self.__array[0:self.__height, 0:self.__width, 2]
+        Y = self.__array[0:self.__width, 0:self.__height, 0]
+        Cr = self.__array[0:self.__width, 0:self.__height, 1]
+        Cb = self.__array[0:self.__width, 0:self.__height, 2]
 
         self.__array = np.stack((Y, Cr, Cb), axis=-1)
 
@@ -136,7 +156,7 @@ class Reverse:
         # R = Cr - G
         # B = Cb - G
 
-        self.__array = np.stack((R, G, B), axis=-1)
+        self.__array = np.clip(np.stack((R, G, B), axis=-1), 0, 255)
 
 
     def shift_level(self):

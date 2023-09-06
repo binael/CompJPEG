@@ -72,3 +72,80 @@ def get_cosine_array(n=8) -> list:
             matrix[i][j] = round(number, 4)
 
     return (np.array(matrix))
+
+
+def FDCT(array):
+    """
+    A function that implements (Foward) DCT on an 8X8
+    subsection of an ndarray
+
+    Parameters
+    ----------
+    array: ndarray
+        8X8 subsection of an nd array
+
+    Formula
+    -------
+        # cosine_array - 8X8 cosine transfrom array (find in helpers.py)
+        # cosine_array.T - the transpose
+        # array - 8X8 section of the image
+        # result - 8X8 section of the image that is dct transformed
+        # * - matrix multiplication
+
+        $ result = cosine_array * array * cosine_array.T
+
+    Returns
+    -------
+    ndarray:
+        DCT transformed 8X8 ndarray
+    """
+
+    if not isinstance(array, np.ndarray):
+        raise TypeError('Array must be a numpy array')
+
+    dim = array.shape
+    if len(dim) != 2:
+        raise TypeError('Array must be a 2d 8X8 array')
+    if dim[0] != 8 or dim[1] != 8:
+        raise TypeError('Array must be an 8X8 array')
+
+    # np.dot - matrix multiplication
+    return (np.dot(np.dot(cosine_array, array), (cosine_array.T)))
+
+
+def IDCT(array):
+    """
+    A function that implements inverse DCT on an 8X8 subsection
+    of an ndarray
+
+    Parameters
+    ----------
+    array: ndarray
+        8X8 subsection of an nd array
+
+    Formula
+    -------
+        # cosine_array - 8X8 cosine transfrom array (find in helpers.py)
+        # cosine_array.T - the transpose
+        # array - 8X8 section of the image
+        # result - 8X8 section of the image that is dct transformed
+        # * - matrix multiplication
+
+        $ result = cosine_array.T * array * cosine_array
+
+    Returns
+    -------
+    ndarray:
+        inverse DCT transformed 8X8 ndarray
+    """
+
+    if not isinstance(array, np.ndarray):
+        raise TypeError('Array must be a numpy array')
+
+    dim = array.shape
+    if len(dim) != 2:
+        raise TypeError('Array must be a 2d 8X8 array')
+    if dim[0] != 8 or dim[1] != 8:
+        raise TypeError('Array must be an 8X8 array')
+
+    return (np.dot(np.dot(cosine_array.T, array), cosine_array))

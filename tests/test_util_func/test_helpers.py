@@ -64,17 +64,17 @@ class TestPictureResolution(unittest.TestCase):
         self.file = './jpeg_images/example1.jpg'
         self.no_image = 'no_image_file_here.jpeg'
         with Image.open(self.file) as img:
-            self.height, self.width = img.size
-            self.res = f'{self.height} X {self.width}'
+            self.width, self.height = img.size
+            self.res = f'{self.width} X {self.height}'
 
     def test_return_type(self):
         self.assertIsInstance(picture_resolution(self.file), str)
 
-    def test_picture_resolution_height(self):
-        pix_dim = picture_resolution(self.file).split(' X ')
-        self.assertEqual(int(pix_dim[0]), self.height)
-
     def test_picture_resolution_width(self):
+        pix_dim = picture_resolution(self.file).split(' X ')
+        self.assertEqual(int(pix_dim[0]), self.width)
+
+    def test_picture_resolution_height(self):
         pix_dim = picture_resolution(self.file).split(' X ')
         self.assertEqual(int(pix_dim[1]), self.height)
 

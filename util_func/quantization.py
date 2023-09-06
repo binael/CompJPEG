@@ -52,7 +52,7 @@ QUANTIZATION_LUMA_50 = np.array((
 ))
 
 
-def get_quantRatio(quality, mode='all') -> list | tuple:
+def get_quantRatio(quality, channel='all') -> list | tuple:
     """
     A function that computes the quantization array of array from the user
     quality
@@ -61,7 +61,7 @@ def get_quantRatio(quality, mode='all') -> list | tuple:
     ----------
     quality : int
         the compression quality
-    mode : str
+    channel : str
         the color channel for the quantization
         all (default) - gets both Y and C color channels
         chroma - gets only the C channel (ie CrCb)
@@ -73,17 +73,17 @@ def get_quantRatio(quality, mode='all') -> list | tuple:
         An 8X8 nd array of integers ranging from 0-255
         result may be a single nd array or a tuple of ndarrays
 
-        # if mode = 'all'
+        # if channel = 'all'
         # (ndarray_luma, ndarray_chroma)
     """
 
     # Handle input errors
     if not isinstance(quality, int):
         raise TypeError('Quality must be an integer')
-    if not isinstance(mode, str):
-        raise TypeError("mode is not an integer")
-    if mode.lower().strip() not in ['all', 'luma', 'chroma']:
-        raise ValueError('mode must be "all, luma or chroma"')
+    if not isinstance(channel, str):
+        raise TypeError("channel is not an integer")
+    if channel.lower().strip() not in ['all', 'luma', 'chroma']:
+        raise ValueError('channel must be "all, luma or chroma"')
     if quality < 1 or quality > 100:
         raise ValueError('Quality must be between 1 and 100')
 
@@ -108,9 +108,83 @@ def get_quantRatio(quality, mode='all') -> list | tuple:
     # mat = list(map(lambda x: list(map(
     #     lambda y: 255 if y > 255 else y, x)),luma_quant))
 
-    if (mode.lower() == 'luma'):
+    if (channel.lower() == 'luma'):
         return (luma_array)
-    if (mode.lower() == 'chroma'):
+    if (channel.lower() == 'chroma'):
         return (chroma_array)
 
     return (luma_array, chroma_array)
+
+
+def quantize(array, quality, channel):
+    """
+    Function that quantizes an 8X8 subsection of an nd array
+
+    Parameters
+    ----------
+    array: ndarray
+        8X8 subsection of an image ndarray
+    quality: int
+        the quality needed for quantization
+    channel: str ['luma' or 'chroma']
+        the color channel that is to be quantized
+
+    Returns
+    -------
+    ndarray:
+        The dequantized subsection of the array
+    """
+
+    if not isinstance(array, np.ndarray):
+        raise TypeError('Array must be a numpy array')
+
+    dim = array.shape
+    if len(dim) != 2:
+        raise TypeError('Array must be a 2d 8X8 array')
+    if dim[0] != 8 or dim[1] != 8:
+        raise TypeError('Array must be an 8X8 array')
+    if channel.lower().strip() not in ['luma', 'chroma']:
+        raise ValueError('channel must be either "luma" or "chroma"')
+    if not isinstance(quality, int):
+        raise TypeError('Quality must be an integer')
+    if quality < 1 or quality > 100:
+        raise ValueError('Quality must be between 1 and 100')
+    quant_ratio = get_quantRatio(quality, channel)
+    return (np.round(np.multiply(array, quant_ratio)))
+
+
+def de_quantize(array, quality, channel):
+    """
+    Function that dequantizes an 8X8 subsection of an nd array
+
+    Parameters
+    ----------
+    array: ndarray
+        8X8 subsection of an image ndarray
+    quality: int
+        the quality needed for dequantization
+    channel: str ['luma' or 'chroma']
+        the color channel that is to be deuantized
+
+    Returns
+    -------
+    ndarray:
+        The dequantized subsection of the array
+    """
+
+    if not isinstance(array, np.ndarray):
+        raise TypeError('Array must be a numpy array')
+
+    dim = array.shape
+    if len(dim) != 2:
+        raise TypeError('Array must be a 2d 8X8 array')
+    if dim[0] != 8 or dim[1] != 8:
+        raise TypeError('Array must be an 8X8 array')
+    if channel.lower().strip() not in ['luma', 'chroma']:
+        raise ValueError('channel must be either "luma" or "chroma"')
+    if not isinstance(quality, int):
+        raise TypeError('Quality must be an integer')
+    if quality < 1 or quality > 100:
+        raise ValueError('Quality must be between 1 and 100')
+    quant_ratio = get_quantRatio(quality, channel)
+    return (np.round(np.divide(array, quant_ratio)))
