@@ -94,7 +94,7 @@ class Decoder:
         self.__array = np.stack((Y, Cr, Cb), axis=-1)
 
 
-    def YCrCb2BRG(self):
+    def YCrCb2RGB(self):
         """
         Function that converts data from YCrCb to RGB
 

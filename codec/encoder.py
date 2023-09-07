@@ -149,7 +149,9 @@ class Encoder():
         new_array = pad_array(self.__array, self.__paddedWidth,
                               self.__paddedHeight)
 
-        return (self.__array)
+        self.__array = new_array
+
+        return (new_array)
 
 
     def RGB2YCrCb(self, default_mode='RBG'):
@@ -249,6 +251,7 @@ class Encoder():
 
         # Create a new array
         ar_copy = np.empty((self.__paddedWidth, self.__paddedHeight, D))
+        
 
         # Compress
         for d in range(D):
@@ -266,7 +269,8 @@ class Encoder():
 
                     # Get the 8X8 slice
                     mat_8 = self.__array[r_start:r_end, c_start:c_end, d]
-                    # Transform using DCT (FDCT)
+                    # print(f'self.__array[{r_start}:{r_end}, {c_start}:{c_end}, {d}]')
+                    # # Transform using DCT (FDCT)
                     dct = FDCT(mat_8)
                     # Quantize
                     quant = quantize(dct, self.__quality, mode)

@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 
-"""
-Tests for the module image_io
-"""
-
 from tests import variables as var
-from fileIO import save_image
-from fileIO import get_image_array
+from fileIO import picture
 from PIL import Image
+import numpy as np
+
+filename = './jpeg_images/dental-implants.jpg'
+quality = 5
 
 
-img = Image.open('come', 'to', 'papa', 'now')
+pix = picture(filename, quality)
+
+
+print(pix)
