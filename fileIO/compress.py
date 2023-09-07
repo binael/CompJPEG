@@ -89,7 +89,7 @@ def compress_image(filename, quality):
     encode.RGB2YCrCb()
     encode.sampling()
     encode.padding()
-    encode.compression()
+    # encode.compression()
 
     input_details['width'] = encode.width
     input_details['height'] = encode.height
@@ -114,7 +114,7 @@ def decompress_image(image_array, input_details):
 
     decode = Decoder(image_array, width, height, paddedWidth,
                      paddedHeight, quality)
-    decode.decompression()
+    # decode.decompression()
     decode.reverse_padding()
     decode.reverse_sampling()
     decode.YCrCb2RGB()
