@@ -74,7 +74,7 @@ class Encoder():
         -----------
         array : ndarray
             A 3D numpy array of image array that will be encoded
-        quality : int
+        quality : variable int
             The compression rate selected by the user
         width : int
             The width of the image
@@ -95,18 +95,20 @@ class Encoder():
         else:
             raise ValueError('Cannot determine array dimensions')
 
-        self.__paddedWidth = 0
-        self.__paddedHeight = 0
+        self.__paddedWidth = self.__paddedHeight = 0
+        self.__Cr = self.__Cb = self.__Y = None
 
     @property
-    def array(self):
-        return self.__array
+    def Y(self):
+        return self.__Y
 
-    @array.setter
-    def array(self, value):
-        if not np.all(np.isin(value.dtype, [np.float_, np.int_])):
-            raise TypeError('array values not float or int')
-        self.__array = value
+    @property
+    def Cr(self):
+        return self.__Cr
+
+    @property
+    def Cb(self):
+        return self.__Cb
 
     @property
     def width(self):
@@ -124,7 +126,7 @@ class Encoder():
     def paddedHeight(self):
         return self.__paddedHeight
 
-    def padding(self, section=8):
+    def padding(self, section=8) -> None:
         """
         A function that pads the array and ensures the width and height
         of the array are in multiples of 8
@@ -135,26 +137,19 @@ class Encoder():
             The groupings of the image array to prime. Note that the
             default is 8 to ensure that the image is successfully
             quantized
-
-        Returns
-        -------
-        ndarray
-            A 3D or 2D numpy array of image that is padded
         """
 
         # Get the padding dimensions
         self.__paddedWidth = ceil(self.__width / section) * section
         self.__paddedHeight = ceil(self.__height / section) * section
-
-        new_array = pad_array(self.__array, self.__paddedWidth,
+        self.__Y = pad_array(self.__Y, self.__paddedWidth,
+                             self.__paddedHeight)
+        self.__Cr = pad_array(self.__Cr, self.__paddedWidth,
+                              self.__paddedHeight)
+        self.__Cb = pad_array(self.__Cb, self.__paddedWidth,
                               self.__paddedHeight)
 
-        self.__array = new_array
-
-        return (new_array)
-
-
-    def RGB2YCrCb(self, default_mode='RBG'):
+    def RGB2YCrCb(self, default_mode='RBG') -> None:
         """
         A function that converts image array from BRG color space to YCrCb
 
@@ -176,11 +171,6 @@ class Encoder():
             $ Y = R * 0.299  +  G * 0.587  +  B * 0.114
             $ Cr = R * -0.1687  +  G * -0.3317  +  B * 0.5  +  128
             $ Cr = R * 0.5  +  G * -0.4187  +  B * -0.0813  +  128
-
-        Return
-        ------
-        ndarray:
-            A 3D numpy array of image array in YCrCb
         """
 
         # Get the YCrCb
@@ -188,16 +178,18 @@ class Encoder():
             self.__array[:, :, 2] * 0.114
         Cr = self.__array[:, :, 0] * 0.5 + self.__array[:, :, 1] * -0.4187 +\
             self.__array[:, :, 2] * -0.0813 + 128
-        Cb = self.__array[:, :, 0] * -0.1687 + self.__array[:, :, 1] * -0.3317 +\
-            self.__array[:, :, 2] * 0.5 + 128
+        Cb = self.__array[:, :, 0] * -0.1687 + self.__array[:, :, 1] *\
+            -0.3317 + self.__array[:, :, 2] * 0.5 + 128
 
-        # convert back to 3D numpy array and ensures values are within
-        # the range of 0 and 255
-        self.__array = np.clip(np.stack((Y, Cr, Cb), axis=-1), 0, 255)
+        # Ensures values are within the range of 0 and 255
+        self.__Y = np.clip(Y, 0, 255)
+        self.__Cr = np.clip(Cr, 0, 255)
+        self.__Cb = np.clip(Cb, 0, 255)
 
-        return (self.__array.astype(np.int64))
+        # Free self.__array memory for garbage collection
+        self.__array = None
 
-    def sampling(self, array=None):
+    def sampling(self) -> None:
         """
         Convert the array array from unsigned to a signed representation
 
@@ -207,75 +199,60 @@ class Encoder():
         Parameters
         ----------
         array: ndarray
-            numpy array 
+            numpy array
 
         Note
         ----
         unsigned array: from 0 to 255
         signed representation: from -128 to 127
-
-        Return
-        ndarray:
-            nd array signed array
         """
 
-        if array is not None:
-            return ((array - 128).astype(np.int64))
+        self.__Y = self.__Y - 128
+        self.__Cr = self.__Cr - 128
+        self.__Cb = self.__Cb - 128
 
-        self.__array = self.__array - 128
-        return (self.__array.astype(np.int64))
-
-
-    def compression(self):
+    def compression(self) -> None:
         """
         A function that compresses the image by applying dct transform
         and then quantization
-
-        Return
-        ------
-        array: numpy 3D array
-            the quantized numpy array
         """
 
         # Ensure padded dimensions are valid
         if (self.__paddedWidth == 0) or (self.__paddedHeight == 0):
             self.__paddedWidth = ceil(self.__width / 8) * 8
             self.__paddedHeight = ceil(self.__height / 8) * 8
-
-        # Get the nd array dimensions
-        D = self.__array.ndim
-
         # Divide the width and height into 8X8 sections
         row_section = self.__paddedWidth // self.bits
         col_section = self.__paddedHeight // self.bits
-
-        # Create a new array
-        ar_copy = np.empty((self.__paddedWidth, self.__paddedHeight, D))
-        
-
         # Compress
-        for d in range(D):
-            for row in range(row_section):
-                r_start = row * self.bits
-                r_end = r_start + self.bits
-                if d == 0:
-                    mode = 'luma'
-                else:
-                    mode = 'chroma'
+        for row in range(row_section):
+            r_start = row * self.bits
+            r_end = r_start + self.bits
+            for col in range(col_section):
+                c_start = col * self.bits
+                c_end = c_start + self.bits
 
-                for col in range(col_section):
-                    c_start = col * self.bits
-                    c_end = c_start + self.bits
+                # ================================ #
+                # Get the 8X8 slice of the array   #
+                # Transform using DCT (FDCT)       #
+                # Quantize                         #
+                # Copy into the array channel      #
+                # ================================ #
 
-                    # Get the 8X8 slice
-                    mat_8 = self.__array[r_start:r_end, c_start:c_end, d]
-                    # print(f'self.__array[{r_start}:{r_end}, {c_start}:{c_end}, {d}]')
-                    # # Transform using DCT (FDCT)
-                    dct = FDCT(mat_8)
-                    # Quantize
-                    quant = quantize(dct, self.__quality, mode)
-                    # Copy value into the new array
-                    ar_copy[r_start:r_end, c_start:c_end, d] = quant
+                # For Y channel
+                mat_8 = self.__Y[r_start:r_end, c_start:c_end]
+                dct = FDCT(mat_8)
+                quant = quantize(dct, self.__quality, channel='luma')
+                self.__Y[r_start:r_end, c_start:c_end] = quant
 
-        self.__array = ar_copy
-        return (ar_copy)
+                # For Cr channel
+                mat_8 = self.__Cr[r_start:r_end, c_start:c_end]
+                dct = FDCT(mat_8)
+                quant = quantize(dct, self.__quality, channel='luma')
+                self.__Cr[r_start:r_end, c_start:c_end] = quant
+
+                # For Cb channel
+                mat_8 = self.__Cb[r_start:r_end, c_start:c_end]
+                dct = FDCT(mat_8)
+                quant = quantize(dct, self.__quality, channel='luma')
+                self.__Cb[r_start:r_end, c_start:c_end] = quant
