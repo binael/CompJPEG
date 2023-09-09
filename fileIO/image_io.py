@@ -10,6 +10,7 @@ and save to JPEG format
 import numpy as np
 from PIL import Image
 
+
 def save_image(array, filename) -> None:
     """
     A function that saves a compressed image from array
