@@ -1,28 +1,35 @@
 #!/usr/bin/env python3
 
-# from tests import variables as var
-# from fileIO import picture
-# from PIL import Image
-# import numpy as np
+from tests import variables as var
+from fileIO import picture
+import json
 
-# filename = './jpeg_images/dental-implants.jpg'
-# quality = 5
-
-
-# pix = picture(filename, quality)
+filename = './jpeg_images/blur-stain.jpg'
+quality = 5
 
 
-# print(pix)
+pix = picture(filename, quality)
 
-import numpy as np
 
-a = np.array(42)
-b = np.array([1, 2, 3, 4, 5])
-c = np.array([[1, 2, 3], [4, 5, 6]])
-d = np.zeros((3, 4, 3))
+print(json.dumps(pix))
 
-print(a.ndim)
-print(b.ndim)
-print(c.ndim)
-print(d.shape)
-print(d)
+# img = Image.open(filename)
+# ar = np.array(img)
+
+# encode = Encoder(ar, quality)
+# encode.RGB2YCrCb()
+# encode.sampling()
+# encode.padding()
+# encode.compression()
+
+# decode = Decoder(encode.Y, encode.Cr, encode.Cb, encode.width,
+#                  encode.height, encode.paddedWidth, encode.paddedHeight,
+#                  quality)
+
+# decode.decompression()
+# decode.reverse_padding()
+# decode.reverse_sampling()
+# decode.YCrCb2RGB()
+
+# image = Image.fromarray(decode.array.astype(np.uint8))
+# image.save('compressed.jpg')
