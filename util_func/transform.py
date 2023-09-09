@@ -103,7 +103,6 @@ def FDCT(array):
 
     if not isinstance(array, np.ndarray):
         raise TypeError('Array must be a numpy array')
-    
 
     dim = array.shape
     if len(dim) != 2:

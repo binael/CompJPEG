@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
 
 """
-This module contain helper functions that imports from C dynamic 
+This module contain helper functions that imports from C dynamic
 or shared library
-
-Variables
----------
-dll : c_type
-    Imported C dynamic library
 
 Note
 ----
 Matrix - An array of array | 2D array
 """
 
+# Python modules
 from ctypes.util import find_library
 from ctypes import *
 
@@ -49,17 +45,15 @@ def picture_resolution(image) -> str:
         raise TypeError('Input must be a string of filepath')
     if not image:
         raise ValueError('Input must be a string of filepath')
-    resolution = dll.picture_resolution
 
+    resolution = dll.picture_resolution
     resolution.argtypes = [c_char_p]
     resolution.restype = c_char_p
     image_file = c_char_p(image.encode())
-
     result = resolution(image_file)
 
-    if result == None:
+    if not result:
         raise FileNotFoundError('File could not be opened')
-
     return (result.decode())
 
 
@@ -89,7 +83,6 @@ def get_dimension(image: str) -> tuple:
 
     resolution = picture_resolution(image)
     dimension = resolution.split(' X ')
-
     return (int(dimension[0]), int(dimension[1]))
 
 
@@ -125,12 +118,9 @@ def get_image_size(image: str) -> str:
     picture_size = dll.picture_size_str
     picture_size.argtypes = [c_char_p]
     picture_size.restype = c_char_p
-
     image_file = c_char_p(image.encode())
-
     size_in_str = picture_size(image_file)
 
-    if size_in_str == None:
+    if not size_in_str:
         raise FileNotFoundError('File could not be opened')
-
-    return(size_in_str.decode())
+    return (size_in_str.decode())

@@ -148,7 +148,7 @@ def quantize(array, quality, channel):
         raise ValueError('channel must be either "luma" or "chroma"')
     if not isinstance(quality, int):
         raise TypeError('Quality must be an integer')
-    if quality < 5 or quality > 95: # Avert ZeroDivisionError
+    if quality < 5 or quality > 95:  # Avert ZeroDivisionError
         raise ValueError('Quality must be between 1 and 100')
     quant_ratio = get_quantRatio(quality, channel)
     return (np.round(np.divide(array, quant_ratio)))

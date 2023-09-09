@@ -4,6 +4,7 @@
 Implentation of padding for 3D array
 """
 
+# Python module
 import numpy as np
 
 
@@ -28,7 +29,7 @@ def pad_array3d(array, width, height, paddedWidth, paddedHeight):
     Return
     ------
     ndarray:
-        3D numpy array that both the height and the width of the 
+        3D numpy array that both the height and the width of the
         individual 2D arrays are divisible by 8
     """
 
@@ -105,15 +106,16 @@ def pad_array2d(array, width, height, paddedWidth, paddedHeight):
 
     for h in range(h_diff):
         last = h + height
-        ar[0:paddedWidth, last: last + 1] = ar[0:paddedWidth, height - 1:height]
+        ar[0:paddedWidth, last: last + 1] =\
+            ar[0:paddedWidth, height - 1:height]
 
     return (ar)
 
 
 def pad_array(array, paddedWidth, paddedHeight):
     """
-    A function that pads a 3D or 2D numpy array to ensure multiples of 8 on both
-    rows and columns
+    A function that pads a 3D or 2D numpy array to
+    ensure multiples of 8 on bothrows and columns
 
     Parameters
     ----------
@@ -127,7 +129,7 @@ def pad_array(array, paddedWidth, paddedHeight):
     Return
     ------
     ndarray:
-        3D or 2D numpy array that both the height and the width of the 
+        3D or 2D numpy array that both the height and the width of the
         arrays are divisible by 8
     """
 
@@ -153,4 +155,4 @@ def pad_array(array, paddedWidth, paddedHeight):
     if dim == 2:
         return pad_array2d(array, w, h, paddedWidth, paddedHeight)
     else:
-        return pad_array3d(array, w, h,paddedWidth, paddedHeight)
+        return pad_array3d(array, w, h, paddedWidth, paddedHeight)
