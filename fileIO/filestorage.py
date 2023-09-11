@@ -9,7 +9,7 @@ objects in the json file
 import json
 import os
 
-from fileIO import Details
+from fileIO.im_details import Details
 
 
 class FileStorage:
@@ -48,7 +48,7 @@ class FileStorage:
 
         if not self.__lastObject:
             obj_list = list(self.__objects.keys())
-            self.__lastObject = self.__objects[obj_list[-1]]
+            self.__lastObject = obj_list[-1]
         return (self.__objects[self.__lastObject])
 
     def reload(self) -> None:
@@ -59,7 +59,7 @@ class FileStorage:
             with open(self.__jfile, mode='r') as jfile:
                 obj = json.load(jfile)
             for key in obj:
-                details = Details[**(obj[key])]
+                details = Details(**obj[key])
                 self.__objects[key] = details.__dict__
         except:
             pass
@@ -75,7 +75,7 @@ class FileStorage:
             new dictionary to be added
         """
         if obj:
-            self.__lastObject = obj['image_name']
+            self.__lastObject = obj['compressed_image_name']
             self.__objects[self.__lastObject] = obj
 
     def delete(self, obj) -> None:
@@ -89,7 +89,7 @@ class FileStorage:
         """
         if obj in self.__objects:
             full_path = self.__objects[obj][out_fullpath]
-            del = self.__objects[obj]
+            del self.__objects[obj]
             self.__lastObject = self.last_object()
             self.__save()
             if os.path.exists(full_path):

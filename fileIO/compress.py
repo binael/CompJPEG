@@ -9,19 +9,20 @@ of the image to enable image compression
 from uuid import uuid4
 from datetime import datetime
 import os
+import numpy as np
 
 # Modules (functions) from codec package
 from codec import Encoder
 from codec import Decoder
 
 # Modules (functions) from util_func package
-from util_func import picture_resolution
-from util_func import get_image_size
+from util_func.helpers import picture_resolution
+from util_func.helpers import get_image_size
 
 # Modules (functions) from fileIO package
-from fileIO import save_image
-from fileIO import get_image_array
-from fileIO.filestorage import FileStorage
+from fileIO.image_io import save_image
+from fileIO.image_io import get_image_array
+from fileIO import storage
 
 
 def picture(filename, quality=50, output_image_name=None):
@@ -108,10 +109,8 @@ def picture(filename, quality=50, output_image_name=None):
     }
 
     # Save the details of the compressed file
-    if not FileStorage.objects:
-        FileStorage.reload()
-    FileStorage.new(im_details)
-    FileStorage.save()
+    storage.new(im_details)
+    storage.save()
 
     return (im_details)
 
@@ -156,7 +155,7 @@ def compress_image(filename, quality) -> tuple:
         'quality': quality
     }
     if quality > 95 and quality <= 100:
-        return (image_tup, input_details)
+        return (image_tuple, input_details)
     # Call the Encode functions to compress Image
     encode = Encoder(image_array, quality)
     encode.RGB2YCrCb()
@@ -193,13 +192,15 @@ def decompress_image(image_tuple, input_details):
 
     quality = input_details['quality']
     if quality > 95 and quality <= 100:
-        return image_array
+        R, G, B = image_tuple
+        image_array = np.stack((R, G, B), axis=-1)
+        return (np.clip(image_array, 0, 255))
 
     width = input_details['width']
     height = input_details['height']
     paddedHeight = input_details['paddedHeight']
     paddedWidth = input_details['paddedWidth']
-    Y, Cr, Cb = image_tuple[0], image_tuple[1], image_tuple[2]
+    Y, Cr, Cb = image_tuple
 
     decode = Decoder(Y, Cr, Cb, width, height,
                      paddedWidth, paddedHeight, quality)

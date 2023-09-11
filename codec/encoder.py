@@ -38,9 +38,9 @@ import numpy as np
 from math import ceil
 
 # Modules (functions) from util_func package
-from util_func import pad_array
-from util_func import quantize
-from util_func import FDCT
+from util_func.padding import pad_array
+from util_func.transform import FDCT
+from util_func.quantization import quantize
 
 
 class Encoder():

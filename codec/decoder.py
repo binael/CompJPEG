@@ -19,8 +19,8 @@ Stage in Decoding
 import numpy as np
 
 # Modules (functions) from util_func package
-from util_func import IDCT
-from util_func import de_quantize
+from util_func.transform import IDCT
+from util_func.quantization import de_quantize
 
 
 class Decoder:

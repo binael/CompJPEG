@@ -1,53 +1,38 @@
 #!/usr/bin/env python3
 
 from tests import variables as var
-from fileIO import picture
-from fileIO import FileStorage
+from fileIO.compress import picture
+from fileIO import storage
 
-filename = './jpeg_images/fruits.jpg'
-quality = 80
-pix = picture(filename, quality)
-print(f'{pix}\n')
+# filename = './jpeg_images/fruits.jpg'
+# quality = 80
+# pix = picture(filename, quality)
+# print(f'{pix}\n')
 
-filename = './jpeg_images/nature1.jpg'
+# filename = './jpeg_images/nature1.jpg'
+# quality = 55
+# pix = picture(filename, quality)
+# print(f'{pix}\n')
+
+# filename = './jpeg_images/cockroach.jpg'
+# quality = 98
+# pix = picture(filename, quality)
+# print(f'{pix}\n')
+
+# filename = './jpeg_images/blur-stain.jpg'
+# quality = 25
+# pix = picture(filename, quality)
+# print(f'{pix}\n')
+
+print(storage.last_object())
+print('')
+
+filename = './jpeg_images/car-key.jpg'
 quality = 55
 pix = picture(filename, quality)
 print(f'{pix}\n')
 
-filename = './jpeg_images/cockroach.jpg'
-quality = 98
+filename = './jpeg_images/landscape.jpg'
+quality = 35
 pix = picture(filename, quality)
 print(f'{pix}\n')
-
-filename = './jpeg_images/blur-stain.jpg'
-quality = 25
-pix = picture(filename, quality)
-print(f'{pix}\n')
-
-filename = './jpeg_images/grey_image.jpg'
-quality = 45
-pix = picture(filename, quality)
-print(f'{pix}\n')
-
-print(FileStorage.objects)
-
-# img = Image.open(filename)
-# ar = np.array(img)
-
-# encode = Encoder(ar, quality)
-# encode.RGB2YCrCb()
-# encode.sampling()
-# encode.padding()
-# encode.compression()
-
-# decode = Decoder(encode.Y, encode.Cr, encode.Cb, encode.width,
-#                  encode.height, encode.paddedWidth, encode.paddedHeight,
-#                  quality)
-
-# decode.decompression()
-# decode.reverse_padding()
-# decode.reverse_sampling()
-# decode.YCrCb2RGB()
-
-# image = Image.fromarray(decode.array.astype(np.uint8))
-# image.save('compressed.jpg')
