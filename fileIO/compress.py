@@ -21,6 +21,7 @@ from util_func import get_image_size
 # Modules (functions) from fileIO package
 from fileIO import save_image
 from fileIO import get_image_array
+from fileIO.filestorage import FileStorage
 
 
 def picture(filename, quality=50, output_image_name=None):
@@ -97,12 +98,21 @@ def picture(filename, quality=50, output_image_name=None):
         'start_time': start_time_str,
         'end_time': end_time_str,
         'time_taken': time_diff,
-        'image_name': compressed_image_name,
+        'in_image_name': filename,
+        'compressed_image_name': compressed_image_name,
+        'out_fullpath': full_path,
         'in_size': in_size,
         'in_resolution': in_resolution,
         'out_resolution': out_resolution,
         'out_size': out_size
     }
+
+    # Save the details of the compressed file
+    if not FileStorage.objects:
+        FileStorage.reload()
+    FileStorage.new(im_details)
+    FileStorage.save()
+
     return (im_details)
 
 
@@ -236,7 +246,7 @@ def format_image_name(filename):
     else:
         image_file = name_without_ext
     if not dirname:
-        dirname = ''
+        dirname = '.'
     else:
         dirname = dirname + '/'
     return (dirname, image_file, ext)

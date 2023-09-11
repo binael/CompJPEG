@@ -2,16 +2,34 @@
 
 from tests import variables as var
 from fileIO import picture
-import json
+from fileIO import FileStorage
+
+filename = './jpeg_images/fruits.jpg'
+quality = 80
+pix = picture(filename, quality)
+print(f'{pix}\n')
+
+filename = './jpeg_images/nature1.jpg'
+quality = 55
+pix = picture(filename, quality)
+print(f'{pix}\n')
+
+filename = './jpeg_images/cockroach.jpg'
+quality = 98
+pix = picture(filename, quality)
+print(f'{pix}\n')
 
 filename = './jpeg_images/blur-stain.jpg'
-quality = 5
-
-
+quality = 25
 pix = picture(filename, quality)
+print(f'{pix}\n')
 
+filename = './jpeg_images/grey_image.jpg'
+quality = 45
+pix = picture(filename, quality)
+print(f'{pix}\n')
 
-print(json.dumps(pix))
+print(FileStorage.objects)
 
 # img = Image.open(filename)
 # ar = np.array(img)
