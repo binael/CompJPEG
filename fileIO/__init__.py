@@ -1,4 +1,3 @@
-
 from .filestorage import FileStorage
 
 storage = FileStorage()
