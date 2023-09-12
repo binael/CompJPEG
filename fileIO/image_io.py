@@ -13,6 +13,7 @@ from multiprocessing import Process
 import cv2
 import os
 import json
+import shlex
 
 
 def save_image(array, filename) -> None:
@@ -28,10 +29,8 @@ def save_image(array, filename) -> None:
     """
     if not np.any(array):
         raise ValueError('Array must be a non empty array')
-
     if not isinstance(array, np.ndarray):
         raise TypeError('Array must be an ndarray')
-
     if not (array.ndim == 3):
         raise TypeError('Array must be a 3D array')
 
@@ -183,15 +182,57 @@ def get_path_array(args, file_type) -> list:
         containing image paths and quality
     """
     if file_type == 'file':
-        image_array = file_array(args)
+        args_list = file_array(args)
+        if not args_list:
+            return None
     elif file_type == 'directory':
-        image_array = dir_array(args)
+        args_list = dir_array(args)
+        if not args_list:
+            return None
     elif file_type == 'json':
-        image_array = json_array(args)
+        args_list = json_array(args)
+        if not args_list:
+            return None
     elif file_type == 'text':
-        image_array = text_array(args)
+        args_list = text_array(args)
+        if not args_list:
+            return None
     else:
-        image_array = None
+        return None
+
+    image_array = []
+
+    # Loop Through each array
+    for arg in args_list:
+        # Split into pathname and quality
+        arg_list = shlex.split(arg)
+        if len(arg_list) != 2:
+            print(f"ERROR: Wrong number of input args:\t{arg}")
+            return None
+        # Loop through pathname and quality
+        filename = quality = None
+        for key_value in arg_list:
+            # Break into key-value
+            kv = key_value.split('=')
+            check = False
+            if len(kv) > 1 and kv[0] == 'path':
+                filename = kv[1]
+                check = True
+            elif len(kv) > 1 and kv[0] == 'quality':
+                quality = kv[1]
+                check = True
+                try:
+                    quality = int(quality)
+                except:
+                    print(f"ERROR: Conversion to int failed:\t{arg}'")
+                    return None
+            if check == False:
+                print(f"ERROR: Wrong key-value pair:\t{arg}")
+                return None
+        if not (filename and quality):
+            print(f"ERROR: path and type must be valid inputs:\t{arg}")
+            return None
+        image_array.append(list((filename, quality)))
     return (image_array)
 
 
@@ -207,10 +248,44 @@ def file_array(args):
 
     Returns
     -------
-    list of list :
+    list :
         containing image paths and quality
     """
-    
+    # Get arrays containing individual details
+    return (shlex.split(args))
+
+    # # Loop Through each array
+    # for arg in args_list:
+    #     # Split into pathname and quality
+    #     arg_list = shlex.split(arg)
+    #     if len(arg_list) != 2:
+    #         print(f"ERROR: Wrong number of input args:\t{arg}")
+    #         return None
+    #     # Loop through pathname and quality
+    #     filename = quality = None
+    #     for key_value in arg_list:
+    #         # Break into key-value
+    #         kv = key_value.split('=')
+    #         check = False
+    #         if len(kv) > 1 and kv[0] == 'path':
+    #             filename = kv[1]
+    #             check = True
+    #         elif len(kv) > 1 and kv[0] == 'quality':
+    #             quality = kv[1]
+    #             check = True
+    #             try:
+    #                 quality = int(quality)
+    #             except:
+    #                 print(f"ERROR: Conversion to int failed:\t{arg}'")
+    #                 return None
+    #         if check == False:
+    #             print(f"ERROR: Wrong key-value pair:\t{arg}")
+    #             return None
+    #     if not (filename and quality):
+    #         print(f"ERROR: path and type must be valid inputs:\t{arg}")
+    #         return None
+    #     image_array.append(list((filename, quality)))
+    # return (image_array)
 
 
 def json_array(args):
