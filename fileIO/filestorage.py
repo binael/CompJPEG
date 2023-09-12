@@ -10,6 +10,7 @@ import json
 import os
 import shutil
 
+# Modules (functions) from fileIO package
 from fileIO.im_details import Details
 
 
