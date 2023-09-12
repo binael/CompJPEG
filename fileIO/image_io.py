@@ -58,7 +58,6 @@ def get_image_array(filename) -> np.ndarray:
         if img.mode != "RGB":
             raise TypeError(f'Image mode must be RGB. {img.mode} not allowed')
         image_array = np.array(img)
-
     return (image_array)
 
 

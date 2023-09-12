@@ -1,123 +1,30 @@
 #!/usr/bin/env python3
-# from encoder import Encoder, get_dimension, picture_resolution
-# from encoder import np, ceil
-# from encoder import Image
-# from reverse import Reverse
-# from helpers import cosine_array, get_quantRatio
-# import numpy as np
-# from PIL import Image
-# import cv2
+from fileIO.compress import picture
+# from fileIO import storage
+# from fileIO.image_io import display
+# import cmd
+# import shlex
 
-# np.set_printoptions(suppress=True)
+filename = './jpeg_images/car-key.jpg'
+ratio = 85
+picture(filename, ratio)
 
-# rat = 90
+filename = './jpeg_images/landscape.jpg'
+ratio = 60
+picture(filename, ratio)
 
-# filename = 'nature2.jpg'
-# encode = Encoder(filename, rat)
-# encode.get_image_array()
-# # print(data[:, :, 1])
+filename = './jpeg_images/cockroach.jpg'
+ratio = 70
+picture(filename, ratio)
 
-# encode.padding()
-# encode.BRG2YCrCb()
-# encode.shift_level()
-# encode.DCT()
-# encode.quantization()
-# height = encode.height
-# width = encode.width
-# paddedHeight = encode.paddedHeight
-# paddedWidth = encode.paddedWidth
-
-
-# rev = Reverse(encode.data.round().astype(int), paddedHeight, paddedWidth, height, width, rat)
-# # # print(rev.array[:, :, 0])
-# rev.array
-# rev.de_quantization()
-# rev.IDCT()
-# rev.shift_level()
-# rev.YCrCb2BRG()
-# rev.reverse_padding()
-
-# print(rev.quantRatio)
-
-
-# # Read the YCrCb image
-# rgb_image = cv2.imread(filename)
-# ycrcb_image = cv2.cvtColor(rgb_image, cv2.COLOR_BGR2YCrCb)
-# Y, Cr, Cb = cv2.split(ycrcb_image)
-# dct_Y = cv2.dct(np.float32(Y))
-# dct_Cr = cv2.dct(np.float32(Cr))
-# dct_Cb = cv2.dct(np.float32(Cb))
-# idct_Y = cv2.idct(dct_Y)
-# idct_Cr = cv2.idct(dct_Cr)
-# idct_Cb = cv2.idct(dct_Cb)
-# idct_Y_image = cv2.normalize(idct_Y, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-# idct_Cr_image = cv2.normalize(idct_Cr, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-# idct_Cb_image = cv2.normalize(idct_Cb, None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-# idct_ycrcb_image = cv2.merge((idct_Y_image, idct_Cr_image, idct_Cb_image))
-
-# rgb = cv2.cvtColor(idct_ycrcb_image, cv2.COLOR_YCrCb2BGR)
-
-# R, G, B = cv2.split(rgb_image)
-# R = np.array(R)
-
-
-# # img = Image.open(filename)
-# # image = img.convert('YCbCr')
-# # ar = np.array(image)
-
-
-# # print(np.array(img)[:, :, 0])
-# # print()
-# # print(rev.array[0:10, 0:10, 0].astype(np.int64))
-# # print()
-# # print(R)
-
-
-# # name = 'compressed.jpg'
-# # ar = rev.array
-# # image = Image.fromarray(ar.astype(np.uint8))
-# # image.save(name)
-
-
-
-
-
-# #!/usr/bin/env python3
-
-import numpy as np
-from PIL import Image
-from codec import Encoder
-from codec import Decoder
-from fileIO import get_image_array
-from fileIO import save_image
+filename = './jpeg_images/grey_image.jpg'
+ratio = 5
+picture(filename, ratio)
 
 filename = './jpeg_images/fruits.jpg'
+ratio = 45
+picture(filename, ratio)
 
-array_3d = get_image_array(filename)
-
-rat = 5
-
-encode = Encoder(array_3d, rat)
-# print(encode.array[:, :, 0].astype(np.int64))
-encode.RGB2YCrCb()
-encode.sampling()
-encode.padding()
-encode.compression()
-print(encode.array[:, :, 0].astype(np.int64))
-
-pW = encode.paddedWidth
-pH = encode.paddedHeight
-h = encode.height
-w = encode.width
-# print(encode.array[:, :, 0].astype(np.int64))
-decode = Decoder(encode.array, w, h, pW, pH, rat)
-# print(decode.array[:, :, 0])
-decode.decompression()
-decode.reverse_padding()
-decode.reverse_sampling()
-decode.YCrCb2RGB()
-
-
-name = './jpeg_images/compressed.jpg'
-
-save_image(decode.array, name)
+filename = './jpeg_images/nature1.jpg'
+ratio = 40
+picture(filename, ratio)
