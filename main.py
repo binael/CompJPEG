@@ -236,7 +236,7 @@ class CompJPEG(cmd.Cmd):
             print('ERROR: No input arguments')
             return
         arg_list = shlex.split(args)
-        if arg_list != 2:
+        if len(arg_list) != 2:
             print(f"ERROR: Wrong number of input arguments:\t{args}")
             return
         file_path = file_type = ''
@@ -291,18 +291,18 @@ class CompJPEG(cmd.Cmd):
             return
         im_ar = get_path_array(args, file_type='file')
         print(im_ar)
-        # if im_ar:
-        #     for pathname, quality in im_ar:
-        #         try:
-        #             picture(pathname, quality)
-        #         except Exception as er:
-        #             print(f"ERROR: compression of {pathname} failed")
-        #             try:
-        #                 e = er.exception
-        #             except:
-        #                 print(str(er))
-        #             else:
-        #                 print(str(e))
+        if im_ar:
+            for pathname, quality in im_ar:
+                try:
+                    picture(pathname, quality)
+                except Exception as er:
+                    print(f"ERROR: compression of {pathname} failed")
+                    try:
+                        e = er.exception
+                    except:
+                        print(str(er))
+                    else:
+                        print(str(e))
 
 
 if __name__ == '__main__':
