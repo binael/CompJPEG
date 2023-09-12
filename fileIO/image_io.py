@@ -110,3 +110,22 @@ def display(name1, name2="") -> None:
         t2.start()
         t1.join()
         t2.join()
+
+
+def print_details(image_details) -> None:
+    """
+    Prints the details of the compressed image in a
+    well formatted way
+
+    Parameters
+    ----------
+    image_details : dict
+        Dictionary of the formatted image
+    """
+
+    details_max = 4
+    original_max = 10
+    compressed_max = original + 8
+
+    header = f"{' ' < {4}} {'ORIGINAL' < {10}} {'COMPRESSED' < {18}}"
+    print(header)
