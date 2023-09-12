@@ -61,7 +61,7 @@ class CompJPEG(cmd.Cmd):
             args_list = shlex.split(args)
             # Ensure only two input parameters
             if len(args_list) > 2:
-                print("ERROR: More than two parameters")
+                print(f"ERROR: Wrong number of input arguments\n{args}")
                 return
             # Loop through the parameter inputs
             for arg in args_list:
@@ -76,15 +76,15 @@ class CompJPEG(cmd.Cmd):
                     check = True
                 # Return if the parameters are not valid
                 if not check:
-                    print("ERROR: wrong input")
+                    print(f"ERROR: Wrong key-value pair:\t{arg}")
                     return
         # Ensure image ID is present
         if (not image_id):
-            print("ERROR: No image id")
+            print("ERROR: No image id found")
             return
         # Ensure acceptable mode value
         if mode not in ['compressed', 'original', 'compare']:
-            print("ERROR: mode not valie")
+            print("ERROR: mode not valid")
             return
         # Get the object and display
         obj = storage.objects
@@ -102,7 +102,7 @@ class CompJPEG(cmd.Cmd):
                 display(name1, name2)
         # If no such object exist in the database
         if not image_obj:
-            print('No image file found')
+            print(f'ERROR: Could not found object with id:\t{image_id}')
 
     def do_detail(self, args):
         """
@@ -130,16 +130,16 @@ class CompJPEG(cmd.Cmd):
         elif args:
             arg_list = shlex.split(args)
             if len(arg_list) > 1:
-                print("ERROR: More than one input parameter")
+                print(f"ERROR: Wrong number of input arguments:\t{args}")
             arg_list = arg_list[0].split('=')
             if len(arg_list) > 1:
                 if arg_list[0] != 'id':
-                    print("ERROR: Wrong Parameter")
+                    print(f"ERROR: Wrong key-value pair:\t{arg_list}")
                     return
                 image_id = arg_list[1]
         # Ensure image ID is present
         if (not image_id):
-            print("ERROR: No image id")
+            print("ERROR: No image id found")
             return
         obj = storage.objects
         if image_id == 'all':
@@ -152,7 +152,7 @@ class CompJPEG(cmd.Cmd):
             if image_dict:
                 print_details(image_dict)
             else:
-                print("ERROR: No image found")
+                print('ERROR: Could not found object with id:\n{image_id}')
 
     def do_delete(self, args):
         """
@@ -190,7 +190,7 @@ class CompJPEG(cmd.Cmd):
         if args:
             arg_list = shlex.split(args)
             if len(arg_list) > 2:
-                print("ERROR: more than two parameter used")
+                print(f"ERROR: Wrong number of input arguments:\t{args}")
             one_arg = True
             for arg in arg_list:
                 check = False
@@ -202,7 +202,7 @@ class CompJPEG(cmd.Cmd):
                     remove = value[1]
                     check = True
                 if check == False:
-                    print("ERROR: Wrong parameters")
+                    print(f"ERROR: Wrong key-value pair:\t{arg}")
                     return
         if (isinstance(remove, str)) and remove.lower() == 'true':
             remove = True
@@ -237,7 +237,7 @@ class CompJPEG(cmd.Cmd):
             return
         arg_list = shlex.split(args)
         if arg_list != 2:
-            print('ERROR: Wrong number of arguments')
+            print(f"ERROR: Wrong number of input arguments:\t{args}")
             return
         file_path = file_type = ''
         for arg in arg_list:
@@ -250,13 +250,13 @@ class CompJPEG(cmd.Cmd):
                 file_path = value[1]
                 check = True
             if check == False:
-                print("ERROR: Wrong parameters")
+                print(f"ERROR: Wrong key-value pair:\t{arg}")
                 return
         if not (file_path and file_type):
-            print("ERROR: Wrong parameters")
+            print("ERROR: path and type must be valid inputs")
             return
         if file_type.lower() not in ['json', 'text', 'directory']:
-            print("ERROR: Wrong type")
+            print("ERROR: Wrong file type")
             return
         im_ar = get_path_array(file_path, file_type)
         if im_ar:
@@ -277,11 +277,11 @@ class CompJPEG(cmd.Cmd):
         """
         Compresses image file(s) to the desired ratio
 
-        USAGE: compress "file=pathname1 quality=40" "file=pathname2 quality=50" ...
+        USAGE: compress "path=pathname1 quality=40" "path=pathname2 quality=50" ...
 
         Parameters
         ----------
-        file :
+        path :
             The pathname of the image file
         quality :
             The compression ratio
@@ -289,19 +289,20 @@ class CompJPEG(cmd.Cmd):
         if not args:
             print('ERROR: No input files')
             return
-        im_ar = get_path_array(file_path, file_type)
-        if im_ar:
-            for pathname, quality in im_ar:
-                try:
-                    picture(pathname, quality)
-                except Exception as er:
-                    print(f"ERROR: compression of {pathname} failed")
-                    try:
-                        e = er.exception
-                    except:
-                        print(str(er))
-                    else:
-                        print(str(e))
+        im_ar = get_path_array(args, file_type='file')
+        print(im_ar)
+        # if im_ar:
+        #     for pathname, quality in im_ar:
+        #         try:
+        #             picture(pathname, quality)
+        #         except Exception as er:
+        #             print(f"ERROR: compression of {pathname} failed")
+        #             try:
+        #                 e = er.exception
+        #             except:
+        #                 print(str(er))
+        #             else:
+        #                 print(str(e))
 
 
 if __name__ == '__main__':
