@@ -18,6 +18,20 @@ class FileStorage:
     A class that stores the details of all the compressed image
     in a json file and also retrieve details from the
     compressed file
+
+    Methods
+    -------
+    save : 
+        serializes objects to json
+    last_object :
+        returns the last compressed object dictionary
+    reload :
+        de-serializes json to object
+    new :
+        updates new update
+    delete :
+        deletes an object and its corresponding compressed
+        files
     """
 
     # json file name to save image details
@@ -97,13 +111,13 @@ class FileStorage:
         if obj in self.__objects:
             full_path = self.__objects[obj].get('out_fullpath')
             del self.__objects[obj]
-            self.__lastObject = self.last_object()
-            self.__save()
+            self.__lastObject = None
+            self.save()
             if remove and full_path and os.path.exists(full_path):
                 try:
                     os.remove(full_path)
                 except:
-                    pass
+                    print("ERROR: Image removal failed")
         # Remove all objects
         elif obj == 'all':
             last_object = self.last_object()
@@ -115,10 +129,12 @@ class FileStorage:
                 try:
                     os.remove(self.__jfile)
                 except:
-                    pass
+                    print("ERROR: json file removal failed")
             if remove and full_path and os.path.exists(full_path):
                 try:
                     dirname, _ = os.path.split(full_path)
                     shutil.rmtree(dirname)
                 except:
-                    pass
+                    print("ERROR: Directory removal failed")
+        else:
+            print("ERROR: No object found")

@@ -27,14 +27,14 @@ class CompJPEG(cmd.Cmd):
         Pulls out a window showing the image file requested
         by the user
 
-        USAGE: show image_id mode=[ "compressed" | "original" | "compare" ]
-        USAGE: show mode=mode=[ "compressed" | "original" | "compare" ]
-        USAGE: show image_id
+        USAGE: show id=image_id mode=[ compressed | original | compare ]
+        USAGE: show mode=[ compressed | original | compare ]
+        USAGE: show id=image_id
         USAGE: show
 
         Arguments
         ---------
-        image_id : [default=last_object]
+        id : [default=last_object]
             The id of the image that was compressed
         mode : [default=compressed]
             Must be a key-value pair that shows the image to
@@ -46,7 +46,7 @@ class CompJPEG(cmd.Cmd):
             original:
                 displays the input image file of the image_id
         """
-        # Set default values for mode and image_id
+        # Set default values for mode and id
         mode = 'compressed'
         image_id = ''
         last_object = storage.last_object()
@@ -60,19 +60,14 @@ class CompJPEG(cmd.Cmd):
                 print("ERROR: More than two parameters")
                 return
             # Loop through the parameter inputs
-            one_arg = True
             for arg in args_list:
                 # Use 'check' to ensure parameters are acceptable
                 check = False
                 value = arg.split('=')
-                if len(value) == 1 and one_arg:
-                    image_id = value[0]
-                    check = True
-                    one_arg = False
-                elif value[0] == 'mode' and len(value) < 3:
+                if value[0] == 'mode' and len(value) > 1:
                     mode = value[1]
                     check = True
-                elif value[0] == 'image_id' and len(value) < 3:
+                elif value[0] == 'id' and len(value) > 1:
                     image_id = value[1]
                     check = True
                 # Return if the parameters are not valid
@@ -110,16 +105,16 @@ class CompJPEG(cmd.Cmd):
         Displays a command line information about the
         compressed image file
 
-        USAGE : detail image_id=["all" | "id"]
-        USAGE : detail    (Note: defaults image_id to last_object)
+        USAGE : detail id=[ all | image_id ]
+        USAGE : detail    (Note: defaults id to last_object)
 
         Parameters
         ----------
-        image_id : [default=last_object]
+        id : [default=last_object]
             The id of the image that was compressed
             all :
                 Shows the information for all the compressed files
-            id :
+            image_id :
                 The exact image_id to show the detail
         """
         # Set default value for image_id
@@ -128,17 +123,16 @@ class CompJPEG(cmd.Cmd):
             last_object = storage.last_object()
             if last_object:
                 image_id = last_object.get('compressed_image_name')
-        if args:
+        elif args:
             arg_list = shlex.split(args)
             if len(arg_list) > 1:
                 print("ERROR: More than one input parameter")
             arg_list = arg_list[0].split('=')
             if len(arg_list) > 1:
-                if arg_list[0] != 'image_id':
+                if arg_list[0] != 'id':
                     print("ERROR: Wrong Parameter")
                     return
-                arg_list[0] = arg_list[1]
-            image_id = arg_list[0]
+                image_id = arg_list[1]
         # Ensure image ID is present
         if (not image_id):
             print("ERROR: No image id")
@@ -161,18 +155,18 @@ class CompJPEG(cmd.Cmd):
         Deletes an image file data from the database with the
         option to remove the compressed image file
 
-        USAGE : delete image_id=[all | id] remove=False
-        USAGE : delete image_id=[all | id]
+        USAGE : delete id=[ all | image_id ] remove=False
+        USAGE : delete id=[ all | image_id ]
         USAGE : delete remove=False
         USAGE : delete
 
         Parameters
         ----------
-        image_id : [default=last_object]
+        id : [default=last_object]
             The id of the image that was compressed
             all :
                 Shows the information for all the compressed files
-            id :
+            image_id :
                 The exact image_id to show the detail
         remove : [default=True]
             Option to either remove the compressed image or to leave
@@ -189,24 +183,23 @@ class CompJPEG(cmd.Cmd):
         last_object = storage.last_object()
         if last_object:
             image_id = last_object.get('compressed_image_name')
-        elif args:
+        if args:
             arg_list = shlex.split(args)
             if len(arg_list) > 2:
                 print("ERROR: more than two parameter used")
             one_arg = True
             for arg in arg_list:
                 check = False
-                value = args.split('=')
-                if len(value) == 1 and one_arg:
-                    image_id = value[0]
-                    check = True
-                    one_arg = False
-                elif len(value) == 2 and value[0] == 'image_id':
+                value = arg.split('=')
+                if len(value) > 1 and value[0] == 'id':
                     image_id = value[1]
-                elif len(value) == 2 and value[0] == 'remove':
+                    check = True
+                elif len(value) > 1 and value[0] == 'remove':
                     remove = value[1]
+                    check = True
                 if check == False:
                     print("ERROR: Wrong parameters")
+                    return
         if (isinstance(remove, str)) and remove.lower() == 'true':
             remove = True
         elif (isinstance(remove, str)) and remove.lower() == 'false':
@@ -217,8 +210,6 @@ class CompJPEG(cmd.Cmd):
         if not image_id:
             print("ERROR: No image id found")
             return
-        # print(image_id)
-        # print(remove)
         storage.delete(image_id, remove)
 
 if __name__ == '__main__':
