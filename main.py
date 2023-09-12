@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
-from fileIO.compress import picture
-from fileIO import storage
-from fileIO.image_io import display
-from fileIO.image_io import print_details
+# Python modules
 import cmd
 import shlex
+
+# Modules (functions) from fileIO package
+from fileIO import storage
+from fileIO.compress import picture
+from fileIO.image_io import display
+from fileIO.image_io import print_details
+from fileIO.image_io import get_path_array
 
 
 class CompJPEG(cmd.Cmd):
@@ -211,6 +215,94 @@ class CompJPEG(cmd.Cmd):
             print("ERROR: No image id found")
             return
         storage.delete(image_id, remove)
+
+    def do_compressFiles(self, args):
+        """
+        Version of compress image that requires directory, text or
+        json files as sources of input
+
+        USAGE: compressFiles type=[ json | text | directory] path=pathname
+
+        Parameters
+        ----------
+        type :
+            The type of file to source the image details or the directory
+            where the images can be found. Note that sub-directories will not
+            be considered
+        pathname :
+            The pathname for the directory or file
+        """
+        if not args:
+            print('ERROR: No input arguments')
+            return
+        arg_list = shlex.split(args)
+        if arg_list != 2:
+            print('ERROR: Wrong number of arguments')
+            return
+        file_path = file_type = ''
+        for arg in arg_list:
+            value = arg.split('=')
+            check = False
+            if len(value) > 1 and value[0] == 'type':
+                file_type = value[1]
+                check = True
+            elif len(value) > 1 and value[0] == 'path':
+                file_path = value[1]
+                check = True
+            if check == False:
+                print("ERROR: Wrong parameters")
+                return
+        if not (file_path and file_type):
+            print("ERROR: Wrong parameters")
+            return
+        if file_type.lower() not in ['json', 'text', 'directory']:
+            print("ERROR: Wrong type")
+            return
+        im_ar = get_path_array(file_path, file_type)
+        if im_ar:
+            for pathname, quality in im_ar:
+                try:
+                    picture(pathname, quality)
+                except Exception as er:
+                    print(f"ERROR: compression of {pathname} failed")
+                    try:
+                        e = er.exception
+                    except:
+                        print(str(er))
+                    else:
+                        print(str(e))
+
+
+    def do_compress(self, args):
+        """
+        Compresses image file(s) to the desired ratio
+
+        USAGE: compress "file=pathname1 quality=40" "file=pathname2 quality=50" ...
+
+        Parameters
+        ----------
+        file :
+            The pathname of the image file
+        quality :
+            The compression ratio
+        """
+        if not args:
+            print('ERROR: No input files')
+            return
+        im_ar = get_path_array(file_path, file_type)
+        if im_ar:
+            for pathname, quality in im_ar:
+                try:
+                    picture(pathname, quality)
+                except Exception as er:
+                    print(f"ERROR: compression of {pathname} failed")
+                    try:
+                        e = er.exception
+                    except:
+                        print(str(er))
+                    else:
+                        print(str(e))
+
 
 if __name__ == '__main__':
     CompJPEG().cmdloop()
