@@ -201,7 +201,6 @@ def get_path_array(args, file_type) -> list:
         return None
 
     image_array = []
-
     # Loop Through each array
     for arg in args_list:
         # Split into pathname and quality
@@ -274,6 +273,7 @@ def json_array(args):
         with open(args, mode="r") as jfile:
             jo = json.load(jfile)
     except:
+        print(f'ERROR: Failed to open json file:\t{args}')
         return None
     args_list = []
     for data in jo:
@@ -305,6 +305,7 @@ def dir_array(args):
     if os.path.exists(args) and os.path.isdir(args):
         files_and_dirs = os.listdir(args)
     else:
+        print(f"ERROR: No directory found: \t{args}")
         return None
     args_list = []
     for all_files in files_and_dirs:
@@ -332,9 +333,16 @@ def text_array(args):
     list of list :
         containing image paths and quality
     """
-    if not is_text_file:
+    if not is_text_file(args):
+        print(f'ERROR: Failed to open text file:\t{args}')
         return None
-    
+    with open(args, mode="r") as txt:
+        lines = txt.readlines()
+        args_list = []
+        for line in lines:
+            if ("path" in line) and ("quality" in line):
+                args_list.append(line)
+    return (args_list)
 
 
 def is_text_file(filename):
