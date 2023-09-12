@@ -254,39 +254,6 @@ def file_array(args):
     # Get arrays containing individual details
     return (shlex.split(args))
 
-    # # Loop Through each array
-    # for arg in args_list:
-    #     # Split into pathname and quality
-    #     arg_list = shlex.split(arg)
-    #     if len(arg_list) != 2:
-    #         print(f"ERROR: Wrong number of input args:\t{arg}")
-    #         return None
-    #     # Loop through pathname and quality
-    #     filename = quality = None
-    #     for key_value in arg_list:
-    #         # Break into key-value
-    #         kv = key_value.split('=')
-    #         check = False
-    #         if len(kv) > 1 and kv[0] == 'path':
-    #             filename = kv[1]
-    #             check = True
-    #         elif len(kv) > 1 and kv[0] == 'quality':
-    #             quality = kv[1]
-    #             check = True
-    #             try:
-    #                 quality = int(quality)
-    #             except:
-    #                 print(f"ERROR: Conversion to int failed:\t{arg}'")
-    #                 return None
-    #         if check == False:
-    #             print(f"ERROR: Wrong key-value pair:\t{arg}")
-    #             return None
-    #     if not (filename and quality):
-    #         print(f"ERROR: path and type must be valid inputs:\t{arg}")
-    #         return None
-    #     image_array.append(list((filename, quality)))
-    # return (image_array)
-
 
 def json_array(args):
     """
@@ -303,6 +270,19 @@ def json_array(args):
     list of list :
         containing image paths and quality
     """
+    try:
+        with open(args, mode="r") as jfile:
+            jo = json.load(jfile)
+    except:
+        return None
+    args_list = []
+    for data in jo:
+        path = data.get('path')
+        quality = data.get('quality')
+        if path and quality:
+            ar_string = f'path={path} quality={quality}'
+            args_list.append(ar_string)
+    return (args_list)
 
 
 def dir_array(args):
@@ -320,6 +300,21 @@ def dir_array(args):
     list of list :
         containing image paths and quality
     """
+    if args[-1] == '/':
+        args = args[0:-1]
+    if os.path.exists(args) and os.path.isdir(args):
+        files_and_dirs = os.listdir(args)
+    else:
+        return None
+    args_list = []
+    for all_files in files_and_dirs:
+        new_file = os.path.join(args, all_files)
+        if os.path.isfile(new_file):
+            path = new_file
+            quality = 50
+            ar_string = f'path={path} quality={quality}'
+            args_list.append(ar_string)
+    return (args_list)
 
 
 def text_array(args):
@@ -337,3 +332,41 @@ def text_array(args):
     list of list :
         containing image paths and quality
     """
+    if not is_text_file:
+        return None
+    
+
+
+def is_text_file(filename):
+    """
+    Checks if a file is a text file
+
+    Parameters
+    ----------
+    filename : str
+        The filepath of the text file
+
+    Returns
+    bool :
+        True if text file or False if not
+    """
+    # Ensure the file exists and no other error in handlig
+    try:
+        # Check if file has any content
+        if os.path.getsize(filename) == 0:
+            return False
+        # Check if file has any binary or printable value
+        with open(filename, mode="r", encoding='utf-8') as text_file:
+            # Break into chunks
+            data = text_file.read(1024)
+            while data:
+                for byte in data:
+                    c = ord(byte)
+                    # Check if values are printable ascii
+                    if c not in (10, 13) and (c < 32 or c > 126):
+                        return False
+                data = text_file.read(1024)
+    except Exception:
+        return False
+    else:
+        return True

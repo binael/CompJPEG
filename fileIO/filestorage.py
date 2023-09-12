@@ -11,7 +11,7 @@ import os
 import shutil
 
 # Modules (functions) from fileIO package
-from fileIO.im_details import Details
+# from fileIO.im_details import Details
 
 
 class FileStorage:
@@ -73,10 +73,10 @@ class FileStorage:
         """
         try:
             with open(self.__jfile, mode='r') as jfile:
-                obj = json.load(jfile)
-            for key in obj:
-                details = Details(**obj[key])
-                self.__objects[key] = details.__dict__
+                self.__objects = json.load(jfile)
+            # for key in obj:
+            #     details = Details(**obj[key])
+            #     self.__objects[key] = details.__dict__
         except:
             pass
 
