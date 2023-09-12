@@ -8,6 +8,7 @@ objects in the json file
 # Python module
 import json
 import os
+import shutil
 
 from fileIO.im_details import Details
 
@@ -78,19 +79,46 @@ class FileStorage:
             self.__lastObject = obj['compressed_image_name']
             self.__objects[self.__lastObject] = obj
 
-    def delete(self, obj) -> None:
+    def delete(self, obj, remove=True) -> None:
         """
-        Deletes a detail from the json file
+        Deletes object information from the database with
+        the option to delete the compressed image file or folder
+        the option to delete the compressed image file or folder
 
         Parameters
         ----------
         obj : str
             The dict key to delete
+        remove : bool
+            Option to remove only image data object or to remove
+            both the object and the compressed file
         """
+        # Remove a specific object
         if obj in self.__objects:
-            full_path = self.__objects[obj][out_fullpath]
+            full_path = self.__objects[obj].get('out_fullpath')
             del self.__objects[obj]
             self.__lastObject = self.last_object()
             self.__save()
-            if os.path.exists(full_path):
-                os.remove(full_path)
+            if remove and full_path and os.path.exists(full_path):
+                try:
+                    os.remove(full_path)
+                except:
+                    pass
+        # Remove all objects
+        elif obj == 'all':
+            last_object = self.last_object()
+            if not last_object:
+                return
+            full_path = last_object.get('out_fullpath')
+            self.__objects = {}
+            if os.path.exists(self.__jfile):
+                try:
+                    os.remove(self.__jfile)
+                except:
+                    pass
+            if remove and full_path and os.path.exists(full_path):
+                try:
+                    dirname, _ = os.path.split(full_path)
+                    shutil.rmtree(dirname)
+                except:
+                    pass

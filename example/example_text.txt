@@ -1,17 +1,2 @@
 filename=./jpeg_images/car-key.jpg quality=85
-
 filename=./jpeg_images/landscape.jpg quality=60
-
-filename=./jpeg_images/cockroach.jpg quality=70
-
-filename=./jpeg_images/grey_image.jpg quality=5
-
-filename=./jpeg_images/fruits.jpg quality=45
-
-filename=./jpeg_images/nature1.jpg quality=40
-
-filename=./jpeg_images/nature1.jpg quality=40
-
-filename=./jpeg_images/rat.jpg quality=100
-
-filename=./jpeg_images/coin.jpg quality=98
