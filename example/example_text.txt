@@ -1,2 +1,5 @@
-filename=./jpeg_images/car-key.jpg quality=85
-filename=./jpeg_images/landscape.jpg quality=60
+path=./jpeg_images/car-key.jpg quality=85
+path=./jpeg_images/landscape.jpg quality=60
+path=./jpeg_images/nature2.jpg quality=45
+path=./jpeg_images/nature3.jpg quality=75
+path=./jpeg_images/mountain.jpeg quality=55

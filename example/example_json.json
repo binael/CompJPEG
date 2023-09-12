@@ -1,1 +1,1 @@
-[{"filename": "./jpeg_images/car-key.jpg", "quality": 55}, {"filename": "./jpeg_images/grey_image.jpg", "quality": 10}, {"filename": "./jpeg_images/landscape.jpg", "quality": 80}]
+[{"path": "./jpeg_images/landscape.jpg", "quality": 70}, {"path": "./jpeg_images/coin.jpg", "quality": 100}, {"path": "./jpeg_images/nature1.jpg", "quality": 40}, {"path": "./jpeg_images/fruits.jpg", "quality": 30}, {"path": "./jpeg_images/leaf.jpg", "quality": 55}]
