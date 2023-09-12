@@ -12,6 +12,7 @@ from PIL import Image
 from multiprocessing import Process
 import cv2
 import os
+import json
 
 
 def save_image(array, filename) -> None:
@@ -151,3 +152,113 @@ def print_details(image_details) -> None:
     print(f"{'-' * (len(header) + 4)}")
     print(size)
     print(f"{'-' * (len(header) + 4)}")
+
+
+def get_path_array(args, file_type) -> list:
+    """
+    Formats input args into lists containing image path and
+    quality
+
+    Parameters
+    ----------
+    args : str
+        The string containing the pathname or the details for
+        the compressed files
+    file_type : string
+        The string containing the type of file to process
+        Types are:
+        ---------
+        file :
+            file_type for args containing pathnames and qualitys
+        json :
+            json file type for the image detail
+        directory :
+            the directory where the image files can be found
+        text :
+            the text document with image file details
+
+    Returns
+    -------
+    list of list :
+        containing image paths and quality
+    """
+    if file_type == 'file':
+        image_array = file_array(args)
+    elif file_type == 'directory':
+        image_array = dir_array(args)
+    elif file_type == 'json':
+        image_array = json_array(args)
+    elif file_type == 'text':
+        image_array = text_array(args)
+    else:
+        image_array = None
+    return (image_array)
+
+
+def file_array(args):
+    """
+    Gets the array from input str
+
+    Parameters
+    ----------
+    args : str
+        The string containing the pathname or the details for
+        the compressed files
+
+    Returns
+    -------
+    list of list :
+        containing image paths and quality
+    """
+    
+
+
+def json_array(args):
+    """
+    Gets the array from json file
+
+    Parameters
+    ----------
+    args : str
+        The string containing the pathname or the details for
+        the compressed files
+
+    Returns
+    -------
+    list of list :
+        containing image paths and quality
+    """
+
+
+def dir_array(args):
+    """
+    Gets the array from directory
+
+    Parameters
+    ----------
+    args : str
+        The string containing the pathname or the details for
+        the compressed files
+
+    Returns
+    -------
+    list of list :
+        containing image paths and quality
+    """
+
+
+def text_array(args):
+    """
+    Gets the array from text file
+
+    Parameters
+    ----------
+    args : str
+        The string containing the pathname or the details for
+        the compressed files
+
+    Returns
+    -------
+    list of list :
+        containing image paths and quality
+    """
