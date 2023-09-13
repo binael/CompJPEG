@@ -274,7 +274,7 @@ class CompJPEG(cmd.Cmd):
                         print(str(er))
                     else:
                         print(str(e))
-            print("File(s) compression completed......")
+            print("\nFile(s) compression completed......")
             print(f"Number of input: {len(im_ar)}")
             print(f"Number of successful compressions: {counter}")
 
@@ -310,7 +310,7 @@ class CompJPEG(cmd.Cmd):
                         print(str(er))
                     else:
                         print(str(e))
-            print("File(s) compression completed......")
+            print("\nFile(s) compression completed......")
             print(f"Number of input: {len(im_ar)}")
             print(f"Number of successful compressions: {counter}")
 
