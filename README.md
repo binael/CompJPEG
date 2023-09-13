@@ -70,10 +70,9 @@ The environment is all set up
 #### Note that all inputs and options to any command must be a key value pair, else the command returns an error. Check usage of each command for more information
 
 1. `show` : Opens a window to display the image file requested by the user
-#### Parameters for show command
+* _Parameters for show command_:
 	- id [default='<last compressed image id>']: <image id>
 	- mode [default='compressed']: 'compressed' or 'compare' or 'original'
-#### USAGE1:
 `show id=<image id> mode=<option>` Displays the image having mode of the chosen image id
 #### USAGE2:
 `show mode=<option>` Displays the mode of the last compressed image
