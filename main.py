@@ -202,7 +202,7 @@ class CompJPEG(cmd.Cmd):
                 elif len(value) > 1 and value[0] == 'remove':
                     remove = value[1]
                     check = True
-                if check == False:
+                if check is False:
                     print(f"ERROR: Wrong key-value pair:\t{arg}")
                     return
         if (isinstance(remove, str)) and remove.lower() == 'true':
@@ -250,7 +250,7 @@ class CompJPEG(cmd.Cmd):
             elif len(value) > 1 and value[0] == 'path':
                 file_path = value[1]
                 check = True
-            if check == False:
+            if check is False:
                 print(f"ERROR: Wrong key-value pair:\t{arg}")
                 return
         if not (file_path and file_type):
@@ -267,10 +267,10 @@ class CompJPEG(cmd.Cmd):
                     picture(pathname, quality)
                     counter += 1
                 except Exception as er:
-                    print(f"ERROR: compression of {pathname} failed")
+                    print(f"\nERROR: compression of {pathname} failed")
                     try:
                         e = er.exception
-                    except:
+                    except Exception:
                         print(str(er))
                     else:
                         print(str(e))
@@ -278,12 +278,11 @@ class CompJPEG(cmd.Cmd):
             print(f"Number of input: {len(im_ar)}")
             print(f"Number of successful compressions: {counter}")
 
-
     def do_compress(self, args):
         """
         Compresses image file(s) to the desired ratio
 
-        USAGE: compress "path=pathname1 quality=40" "path=pathname2 quality=50" ...
+        USAGE: compress "path=pathname1 quality=40" ...
 
         Parameters
         ----------
@@ -303,10 +302,10 @@ class CompJPEG(cmd.Cmd):
                     picture(pathname, quality)
                     counter += 1
                 except Exception as er:
-                    print(f"ERROR: compression of {pathname} failed")
+                    print(f"\nERROR: compression of {pathname} failed")
                     try:
                         e = er.exception
-                    except:
+                    except Exception:
                         print(str(er))
                     else:
                         print(str(e))

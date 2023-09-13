@@ -4,6 +4,7 @@
 Module to deserialize json files into object (dictionary)
 """
 
+
 class Details:
     """
     Class to deserialize json files into objects

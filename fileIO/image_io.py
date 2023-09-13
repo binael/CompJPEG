@@ -222,10 +222,10 @@ def get_path_array(args, file_type) -> list:
                 check = True
                 try:
                     quality = int(quality)
-                except:
+                except Exception:
                     print(f"ERROR: Conversion to int failed:\t{arg}'")
                     return None
-            if check == False:
+            if check is False:
                 print(f"ERROR: Wrong key-value pair:\t{arg}")
                 return None
         if not (filename and quality):
@@ -272,7 +272,7 @@ def json_array(args):
     try:
         with open(args, mode="r") as jfile:
             jo = json.load(jfile)
-    except:
+    except Exception:
         print(f'ERROR: Failed to open json file:\t{args}')
         return None
     args_list = []

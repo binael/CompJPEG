@@ -22,7 +22,7 @@ class FileStorage:
 
     Methods
     -------
-    save : 
+    save :
         serializes objects to json
     last_object :
         returns the last compressed object dictionary
@@ -41,7 +41,6 @@ class FileStorage:
     __objects = {}
     # Last object name
     __lastObject = None
-
 
     @property
     def objects(self):
@@ -77,7 +76,7 @@ class FileStorage:
             # for key in obj:
             #     details = Details(**obj[key])
             #     self.__objects[key] = details.__dict__
-        except:
+        except Exception:
             pass
 
     def new(self, obj) -> None:
@@ -118,7 +117,7 @@ class FileStorage:
             if remove and full_path and os.path.exists(full_path):
                 try:
                     os.remove(full_path)
-                except:
+                except Exception:
                     print("ERROR: Image removal failed")
         # Remove all objects
         elif obj == 'all':
@@ -131,13 +130,13 @@ class FileStorage:
             if os.path.exists(self.__jfile):
                 try:
                     os.remove(self.__jfile)
-                except:
+                except Exception:
                     print("ERROR: json file removal failed")
             if remove and full_path and os.path.exists(full_path):
                 try:
                     dirname, _ = os.path.split(full_path)
                     shutil.rmtree(dirname)
-                except:
+                except Exception:
                     print("ERROR: Directory removal failed")
         else:
             print("ERROR: No object found")
