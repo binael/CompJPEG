@@ -114,6 +114,7 @@ class FileStorage:
             del self.__objects[obj]
             self.__lastObject = None
             self.save()
+            print(f"Successfully deleted object with id: {obj}")
             if remove and full_path and os.path.exists(full_path):
                 try:
                     os.remove(full_path)
@@ -126,6 +127,7 @@ class FileStorage:
                 return
             full_path = last_object.get('out_fullpath')
             self.__objects = {}
+            print(f"All objects have been deleted")
             if os.path.exists(self.__jfile):
                 try:
                     os.remove(self.__jfile)

@@ -260,10 +260,12 @@ class CompJPEG(cmd.Cmd):
             print("ERROR: Wrong file type")
             return
         im_ar = get_path_array(file_path, file_type)
+        counter = 0
         if im_ar:
             for pathname, quality in im_ar:
                 try:
                     picture(pathname, quality)
+                    counter += 1
                 except Exception as er:
                     print(f"ERROR: compression of {pathname} failed")
                     try:
@@ -272,6 +274,9 @@ class CompJPEG(cmd.Cmd):
                         print(str(er))
                     else:
                         print(str(e))
+            print("File(s) compression completed......")
+            print(f"Number of input: {len(im_ar)}")
+            print(f"Number of successful compressions: {counter}")
 
 
     def do_compress(self, args):
@@ -291,11 +296,12 @@ class CompJPEG(cmd.Cmd):
             print('ERROR: No input files')
             return
         im_ar = get_path_array(args, file_type='file')
-        print(im_ar)
+        counter = 0
         if im_ar:
             for pathname, quality in im_ar:
                 try:
                     picture(pathname, quality)
+                    counter += 1
                 except Exception as er:
                     print(f"ERROR: compression of {pathname} failed")
                     try:
@@ -304,6 +310,9 @@ class CompJPEG(cmd.Cmd):
                         print(str(er))
                     else:
                         print(str(e))
+            print("File(s) compression completed......")
+            print(f"Number of input: {len(im_ar)}")
+            print(f"Number of successful compressions: {counter}")
 
 
 if __name__ == '__main__':
