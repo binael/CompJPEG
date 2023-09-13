@@ -29,13 +29,13 @@ This project was interpreted and tested on Ubuntu 20.04 using python3 (version 3
 ## Getting Started
 1. Clone the project repository
 ```
-	https://github.com/binael/CompJPEG.git
+	git clone https://github.com/binael/CompJPEG.git
 ```
 2. Access the repository
 ```
 	cd CompJPEG
 ```
-3. This stage is where a python virtual environment for the project is created. Note that an virtual environment has already been created and if you want to use it, you can skip this step
+3. This stage is where a python virtual environment for the project is created. Note that a virtual environment has already been created and if you want to use it, you can skip this step
 ```
 	python3 -m venv .venv
 ```
