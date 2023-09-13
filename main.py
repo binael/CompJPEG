@@ -151,8 +151,9 @@ class CompJPEG(cmd.Cmd):
             image_dict = obj.get(image_id)
             if image_dict:
                 print_details(image_dict)
+                print('')
             else:
-                print('ERROR: Could not found object with id:\n{image_id}')
+                print(f'ERROR: Could not found object with id:\t{image_id}')
 
     def do_delete(self, args):
         """
