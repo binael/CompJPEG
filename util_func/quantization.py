@@ -53,7 +53,7 @@ QUANTIZATION_LUMA_50 = np.array((
 ))
 
 
-def get_quantRatio(quality, channel='all') -> list | tuple:
+def get_quantRatio(quality, channel='all'):
     """
     A function that computes the quantization array of array from the user
     quality
