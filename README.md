@@ -72,14 +72,15 @@ The environment is all set up
 ### 1 `show id=<image id> mode=<option>`
 Opens a window to display the image file requested by the user
 * _Parameters for show command_:
-	- id [default='<last compressed image id>']: <image id>
-	- mode [default='compressed']: 'compressed' or 'compare' or 'original'
+	- id [default='<last compressed image id>'] :- <image id>
+	- mode [default='compressed'] :- 'compressed' or 'compare' or 'original'
 
 `show id=<image id> mode=<option>` Displays the image having mode of the chosen image id
 
 `show mode=<option>` Displays the mode of the last compressed image
 
 `show id=<image id>` Displays only the compressed image with the given id
+
 `show` Displays only the last compressed image
 
 2. `delete` : Deletes the stored object detail for each image with option to delete the compressed image
