@@ -73,8 +73,8 @@ The environment is all set up
 * _Parameters for show command_:
 	- id [default='<last compressed image id>']: <image id>
 	- mode [default='compressed']: 'compressed' or 'compare' or 'original'
+
 `show id=<image id> mode=<option>` Displays the image having mode of the chosen image id
-#### USAGE2:
 `show mode=<option>` Displays the mode of the last compressed image
 #### USAGE3:
 `show id=<image id>` Displays only the compressed image with the given id
